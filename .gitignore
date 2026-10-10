@@ -1,0 +1,22 @@
+# Raw and processed data: keep source datasets local unless explicitly approved for publication
+data/raw/*
+!data/raw/README.md
+data/processed/*
+!data/processed/README.md
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Temporary exports and logs
+*.tmp
+*.log
