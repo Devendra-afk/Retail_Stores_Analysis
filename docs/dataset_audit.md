@@ -136,4 +136,4 @@
 | Multiple sales records reference the same calendar date | Retain the one-to-many Calendar-to-Sales relationship | Multiple transactions can occur on the same date |
 | Candidate keys and relationships | Retain the validated keys and relationships | Uniqueness and referential integrity have been checked |
 | Dataset structure and quality | Proceed to exploratory data analysis | Initial data quality checks are complete |
-| Business questions | Analyze the eight questions listed in Section 6 | Use the available product, sales, customer, store, and calendar attributes to derive insights |
+| Business questions | Analyze the questions listed in [question_bank](docs/question_bank.md) | Use the available product, sales, customer, store, and calendar attributes to derive insights |
