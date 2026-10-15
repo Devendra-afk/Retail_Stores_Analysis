@@ -12,7 +12,7 @@ The project follows a dimensional data model, with the sales table acting as the
 
 ### Entity Relationship Diagram
 
-![Retail Store Analysis Schema](schema_design.png)
+![Retail Store Analysis Schema](Schema_Design.png)
 
 ### Tables
 
