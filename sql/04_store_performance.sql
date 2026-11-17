@@ -1,153 +1,96 @@
 -- =============================================================================
 -- 04_store_performance.sql
--- Store-level performance analysis by city, country, and store type
+-- Store Channel, Operating Model, & Geographical Performance Analysis
+-- Retail Stores Sales Analysis (2023-2024)
 -- =============================================================================
 
 USE retail_store_analysis;
 
 -- =============================================================================
--- SECTION 1: CITY-WISE PERFORMANCE
+-- SECTION 1: STORE CHANNEL OPERATING MODEL COMPARISON
 -- =============================================================================
 
--- Q: What is the revenue, profit, and store count for each city?
-SELECT
-    st.city,
-    st.country,
-    COUNT(DISTINCT st.store_id)  AS store_count,
-    COUNT(DISTINCT s.order_id)   AS total_orders,
-    SUM(s.quantity)               AS total_quantity,
-    ROUND(SUM(s.revenue), 2)     AS total_revenue,
-    ROUND(SUM(s.profit), 2)      AS total_profit,
-    ROUND(SUM(s.revenue) / COUNT(DISTINCT st.store_id), 2) AS revenue_per_store,
-    RANK() OVER (ORDER BY SUM(s.revenue) DESC) AS city_rank
-FROM sales s
-INNER JOIN stores st ON s.store_id = st.store_id
-GROUP BY st.city, st.country
-ORDER BY total_revenue DESC;
-
--- =============================================================================
--- SECTION 2: STORE TYPE COMPARISON
--- =============================================================================
-
--- Q: How do different store types compare in revenue, profit, and per-store metrics?
+-- Q: How do the four retail formats (Airport, Mall, Online, Retail) compare in total revenue,
+--    profitability, and individual store productivity?
 SELECT
     st.store_type,
-    COUNT(DISTINCT st.store_id)  AS store_count,
-    COUNT(DISTINCT s.order_id)   AS total_orders,
-    SUM(s.quantity)               AS total_quantity,
-    ROUND(SUM(s.revenue), 2)     AS total_revenue,
-    ROUND(SUM(s.profit), 2)      AS total_profit,
-    ROUND(SUM(s.revenue) / COUNT(DISTINCT st.store_id), 2) AS revenue_per_store,
-    ROUND(SUM(s.profit) / COUNT(DISTINCT st.store_id), 2)  AS profit_per_store,
-    ROUND(SUM(s.quantity) / COUNT(DISTINCT st.store_id), 2) AS quantity_per_store,
-    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2) AS profit_margin_pct
+    COUNT(DISTINCT st.store_id)                                   AS store_count,
+    COUNT(DISTINCT s.order_id)                                    AS total_orders,
+    SUM(s.quantity)                                                AS total_units_sold,
+    ROUND(SUM(s.revenue), 2)                                      AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                       AS total_profit,
+    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2)     AS profit_margin_pct,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT st.store_id), 2)        AS revenue_per_store,
+    ROUND(SUM(s.profit) / COUNT(DISTINCT st.store_id), 2)         AS profit_per_store,
+    ROUND(COUNT(DISTINCT s.order_id) * 1.0 / COUNT(DISTINCT st.store_id), 0) AS orders_per_store,
+    ROUND(SUM(s.revenue) / 25486128.86 * 100, 2)                  AS pct_total_revenue
 FROM sales s
 INNER JOIN stores st ON s.store_id = st.store_id
 GROUP BY st.store_type
 ORDER BY total_revenue DESC;
 
--- Q: What is the average order value by store type?
-WITH store_type_orders AS (
-    SELECT
-        st.store_type,
-        s.order_id,
-        SUM(s.revenue) AS order_revenue
-    FROM sales s
-    INNER JOIN stores st ON s.store_id = st.store_id
-    GROUP BY st.store_type, s.order_id
-)
-SELECT
-    store_type,
-    COUNT(*)                     AS total_orders,
-    ROUND(AVG(order_revenue), 2) AS avg_order_value,
-    ROUND(MIN(order_revenue), 2) AS min_order_value,
-    ROUND(MAX(order_revenue), 2) AS max_order_value
-FROM store_type_orders
-GROUP BY store_type
-ORDER BY avg_order_value DESC;
-
 -- =============================================================================
--- SECTION 3: CITY-COUNTRY MISMATCH FLAGGING
+-- SECTION 2: TOP & BOTTOM PERFORMING STORES
 -- =============================================================================
 
--- Q: Are there any stores where the same city appears under multiple countries (possible data quality issue)?
-SELECT
-    city,
-    COUNT(DISTINCT country) AS country_count,
-    GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ', ') AS countries
-FROM stores
-GROUP BY city
-HAVING COUNT(DISTINCT country) > 1
-ORDER BY city;
-
--- =============================================================================
--- SECTION 4: TOP STORES
--- =============================================================================
-
--- Q: What are the top 10 stores by total revenue?
-SELECT
-    st.store_id,
-    st.store_name,
-    st.city,
-    st.country,
-    st.store_type,
-    COUNT(DISTINCT s.order_id)  AS total_orders,
-    SUM(s.quantity)              AS total_quantity,
-    ROUND(SUM(s.revenue), 2)    AS total_revenue,
-    ROUND(SUM(s.profit), 2)     AS total_profit,
-    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2) AS profit_margin_pct,
-    RANK() OVER (ORDER BY SUM(s.revenue) DESC) AS store_rank
-FROM sales s
-INNER JOIN stores st ON s.store_id = st.store_id
-GROUP BY st.store_id, st.store_name, st.city, st.country, st.store_type
-ORDER BY total_revenue DESC
-LIMIT 10;
-
--- Q: What are the top 10 stores by total profit?
-SELECT
-    st.store_id,
-    st.store_name,
-    st.city,
-    st.country,
-    st.store_type,
-    ROUND(SUM(s.revenue), 2)    AS total_revenue,
-    ROUND(SUM(s.profit), 2)     AS total_profit,
-    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2) AS profit_margin_pct,
-    RANK() OVER (ORDER BY SUM(s.profit) DESC) AS profit_rank
-FROM sales s
-INNER JOIN stores st ON s.store_id = st.store_id
-GROUP BY st.store_id, st.store_name, st.city, st.country, st.store_type
-ORDER BY total_profit DESC
-LIMIT 10;
-
--- Q: Which stores underperform relative to the average revenue per store in their city?
-WITH store_revenue AS (
+-- Q: Which are the top 10 most profitable individual stores across the network?
+WITH store_ranking AS (
     SELECT
         st.store_id,
         st.store_name,
         st.city,
+        st.country,
         st.store_type,
-        ROUND(SUM(s.revenue), 2) AS total_revenue
+        COUNT(DISTINCT s.order_id)                                AS total_orders,
+        ROUND(SUM(s.revenue), 2)                                  AS total_revenue,
+        ROUND(SUM(s.profit), 2)                                   AS total_profit,
+        ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2) AS profit_margin_pct,
+        RANK() OVER (ORDER BY SUM(s.profit) DESC)                 AS profit_rank
     FROM sales s
     INNER JOIN stores st ON s.store_id = st.store_id
-    GROUP BY st.store_id, st.store_name, st.city, st.store_type
-),
-city_avg AS (
-    SELECT
-        city,
-        ROUND(AVG(total_revenue), 2) AS avg_city_revenue
-    FROM store_revenue
-    GROUP BY city
+    GROUP BY st.store_id, st.store_name, st.city, st.country, st.store_type
 )
+SELECT *
+FROM store_ranking
+WHERE profit_rank <= 10
+ORDER BY profit_rank ASC;
+
+-- =============================================================================
+-- SECTION 3: CITY-LEVEL SALES VOLUME (REPORTED STORE CITY)
+-- =============================================================================
+
+-- Q: What is the total sales volume, revenue, and store count for each metropolitan market?
 SELECT
-    sr.store_id,
-    sr.store_name,
-    sr.city,
-    sr.store_type,
-    sr.total_revenue,
-    ca.avg_city_revenue,
-    ROUND(sr.total_revenue - ca.avg_city_revenue, 2) AS delta_from_avg
-FROM store_revenue sr
-INNER JOIN city_avg ca ON sr.city = ca.city
-WHERE sr.total_revenue < ca.avg_city_revenue
-ORDER BY delta_from_avg ASC;
+    st.city,
+    COUNT(DISTINCT st.store_id)                                   AS store_count,
+    COUNT(DISTINCT s.order_id)                                    AS total_orders,
+    SUM(s.quantity)                                                AS total_units_sold,
+    ROUND(SUM(s.revenue), 2)                                      AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                       AS total_profit,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT st.store_id), 2)        AS revenue_per_store,
+    RANK() OVER (ORDER BY SUM(s.revenue) DESC)                     AS city_revenue_rank
+FROM sales s
+INNER JOIN stores st ON s.store_id = st.store_id
+GROUP BY st.city
+ORDER BY total_revenue DESC;
+
+-- =============================================================================
+-- SECTION 4: STORE FORMAT PERFORMANCE WITHIN EACH CITY
+-- =============================================================================
+
+-- Q: Which store formats generate the highest revenue within each city?
+WITH city_format AS (
+    SELECT
+        st.city,
+        st.store_type,
+        COUNT(DISTINCT st.store_id)                                AS stores,
+        ROUND(SUM(s.revenue), 2)                                  AS format_revenue,
+        ROUND(SUM(s.profit), 2)                                   AS format_profit,
+        RANK() OVER (PARTITION BY st.city ORDER BY SUM(s.revenue) DESC) AS rank_in_city
+    FROM sales s
+    INNER JOIN stores st ON s.store_id = st.store_id
+    GROUP BY st.city, st.store_type
+)
+SELECT *
+FROM city_format
+ORDER BY city ASC, rank_in_city ASC;

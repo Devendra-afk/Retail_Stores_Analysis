@@ -1,212 +1,180 @@
 -- =============================================================================
 -- 05_sales_trends.sql
--- Time-based sales analysis: monthly trends, YoY comparisons, weekday and
--- holiday performance
+-- Temporal Analysis, Intra-Week Seasonality, YoY Growth, & Holiday Impact
+-- Retail Stores Sales Analysis (2023-2024)
 -- =============================================================================
 
 USE retail_store_analysis;
 
 -- =============================================================================
--- SECTION 1: MONTHLY REVENUE & PROFIT TRENDS
+-- SECTION 1: MONTHLY SALES TRENDS & YEAR-OVER-YEAR PACING
 -- =============================================================================
 
--- Q: What are the monthly revenue and profit trends over time?
+-- Q: What are the monthly revenue, profit, order volume, and profit margin trends across 2023 and 2024?
 SELECT
-    YEAR(s.order_date)  AS sales_year,
-    MONTH(s.order_date) AS sales_month,
-    COUNT(DISTINCT s.order_id)  AS total_orders,
-    SUM(s.quantity)              AS total_quantity,
-    ROUND(SUM(s.revenue), 2)    AS total_revenue,
-    ROUND(SUM(s.profit), 2)     AS total_profit,
-    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2) AS profit_margin_pct
+    YEAR(s.order_date)                                             AS sales_year,
+    MONTH(s.order_date)                                            AS sales_month,
+    COUNT(DISTINCT s.order_date)                                   AS days_in_month,
+    COUNT(DISTINCT s.order_id)                                     AS total_orders,
+    SUM(s.quantity)                                                 AS total_units,
+    ROUND(SUM(s.revenue), 2)                                       AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                        AS total_profit,
+    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2)      AS profit_margin_pct,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT s.order_date), 2)        AS avg_daily_revenue
 FROM sales s
 GROUP BY YEAR(s.order_date), MONTH(s.order_date)
-ORDER BY sales_year, sales_month;
+ORDER BY sales_year ASC, sales_month ASC;
 
--- Q: What is the month-over-month revenue growth rate?
-WITH monthly_revenue AS (
+-- Q: How does monthly performance compare Year-over-Year (2023 vs 2024) with growth rates?
+WITH monthly_metrics AS (
     SELECT
-        YEAR(s.order_date)  AS sales_year,
-        MONTH(s.order_date) AS sales_month,
-        ROUND(SUM(s.revenue), 2) AS total_revenue
-    FROM sales s
-    GROUP BY YEAR(s.order_date), MONTH(s.order_date)
-    ORDER BY sales_year, sales_month
-)
-SELECT
-    sales_year,
-    sales_month,
-    total_revenue,
-    LAG(total_revenue) OVER (ORDER BY sales_year, sales_month) AS prev_month_revenue,
-    ROUND(
-        (total_revenue - LAG(total_revenue) OVER (ORDER BY sales_year, sales_month))
-        / NULLIF(LAG(total_revenue) OVER (ORDER BY sales_year, sales_month), 0) * 100,
-        2
-    ) AS mom_growth_pct
-FROM monthly_revenue
-ORDER BY sales_year, sales_month;
-
--- =============================================================================
--- SECTION 2: 2023 vs 2024 YEAR-OVER-YEAR COMPARISON
--- =============================================================================
-
--- Q: How does 2024 compare to 2023 on a monthly basis with growth percentages?
-WITH yearly_monthly AS (
-    SELECT
-        YEAR(s.order_date)  AS sales_year,
-        MONTH(s.order_date) AS sales_month,
-        ROUND(SUM(s.revenue), 2)  AS total_revenue,
-        ROUND(SUM(s.profit), 2)   AS total_profit,
-        SUM(s.quantity)            AS total_quantity,
+        MONTH(s.order_date)  AS month_num,
+        YEAR(s.order_date)   AS sales_year,
+        SUM(s.revenue)       AS total_revenue,
+        SUM(s.profit)        AS total_profit,
         COUNT(DISTINCT s.order_id) AS total_orders
     FROM sales s
-    WHERE YEAR(s.order_date) IN (2023, 2024)
-    GROUP BY YEAR(s.order_date), MONTH(s.order_date)
+    GROUP BY MONTH(s.order_date), YEAR(s.order_date)
 ),
-pivoted AS (
+pivoted_monthly AS (
     SELECT
-        sales_month,
-        MAX(CASE WHEN sales_year = 2023 THEN total_revenue END) AS revenue_2023,
-        MAX(CASE WHEN sales_year = 2024 THEN total_revenue END) AS revenue_2024,
-        MAX(CASE WHEN sales_year = 2023 THEN total_profit END)  AS profit_2023,
-        MAX(CASE WHEN sales_year = 2024 THEN total_profit END)  AS profit_2024,
-        MAX(CASE WHEN sales_year = 2023 THEN total_orders END)  AS orders_2023,
-        MAX(CASE WHEN sales_year = 2024 THEN total_orders END)  AS orders_2024
-    FROM yearly_monthly
-    GROUP BY sales_month
+        month_num,
+        ROUND(MAX(CASE WHEN sales_year = 2023 THEN total_revenue END), 2) AS rev_2023,
+        ROUND(MAX(CASE WHEN sales_year = 2024 THEN total_revenue END), 2) AS rev_2024,
+        ROUND(MAX(CASE WHEN sales_year = 2023 THEN total_profit END), 2)  AS prof_2023,
+        ROUND(MAX(CASE WHEN sales_year = 2024 THEN total_profit END), 2)  AS prof_2024,
+        MAX(CASE WHEN sales_year = 2023 THEN total_orders END)            AS orders_2023,
+        MAX(CASE WHEN sales_year = 2024 THEN total_orders END)            AS orders_2024
+    FROM monthly_metrics
+    GROUP BY month_num
 )
 SELECT
-    sales_month,
-    revenue_2023,
-    revenue_2024,
-    ROUND(
-        (revenue_2024 - revenue_2023) / NULLIF(revenue_2023, 0) * 100, 2
-    ) AS revenue_growth_pct,
-    profit_2023,
-    profit_2024,
-    ROUND(
-        (profit_2024 - profit_2023) / NULLIF(profit_2023, 0) * 100, 2
-    ) AS profit_growth_pct,
+    month_num,
+    rev_2023,
+    rev_2024,
+    ROUND(rev_2024 - rev_2023, 2) AS revenue_growth_dollars,
+    ROUND((rev_2024 - rev_2023) / NULLIF(rev_2023, 0) * 100, 2) AS revenue_growth_pct,
+    prof_2023,
+    prof_2024,
+    ROUND((prof_2024 - prof_2023) / NULLIF(prof_2023, 0) * 100, 2) AS profit_growth_pct,
     orders_2023,
     orders_2024
-FROM pivoted
-ORDER BY sales_month;
+FROM pivoted_monthly
+ORDER BY month_num ASC;
 
--- Q: What is the overall annual comparison between 2023 and 2024?
+-- Q: What is the full-year comparison between 2023 and 2024?
 SELECT
-    YEAR(s.order_date) AS sales_year,
-    COUNT(DISTINCT s.order_id) AS total_orders,
-    SUM(s.quantity)             AS total_quantity,
-    ROUND(SUM(s.revenue), 2)   AS total_revenue,
-    ROUND(SUM(s.profit), 2)    AS total_profit,
-    ROUND(AVG(s.revenue), 2)   AS avg_revenue_per_sale
+    YEAR(s.order_date)                                             AS sales_year,
+    COUNT(DISTINCT s.order_date)                                   AS total_days,
+    COUNT(DISTINCT s.order_id)                                     AS total_orders,
+    SUM(s.quantity)                                                 AS total_units,
+    ROUND(SUM(s.revenue), 2)                                       AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                        AS total_profit,
+    ROUND(SUM(s.profit) / NULLIF(SUM(s.revenue), 0) * 100, 2)      AS profit_margin_pct,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT s.order_date), 2)        AS avg_daily_revenue,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT s.order_id), 2)          AS average_order_value
 FROM sales s
-WHERE YEAR(s.order_date) IN (2023, 2024)
 GROUP BY YEAR(s.order_date)
-ORDER BY sales_year;
+ORDER BY sales_year ASC;
 
 -- =============================================================================
--- SECTION 3: WEEKDAY PERFORMANCE
+-- SECTION 2: INTRA-WEEK SEASONALITY (DAY OF WEEK ANALYSIS)
+-- Note: calendar.day_of_week is integer:
+--   0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday, 5=Saturday, 6=Sunday
 -- =============================================================================
 
--- Q: Which day of the week generates the most revenue and orders?
+-- Q: Which day of the week generates the highest daily revenue, profit, and order velocity?
+--    Calculates average daily revenue (SUM / unique days) rather than line-item average.
 SELECT
     ca.day_of_week,
-    COUNT(DISTINCT s.order_id)  AS total_orders,
-    SUM(s.quantity)              AS total_quantity,
-    ROUND(SUM(s.revenue), 2)    AS total_revenue,
-    ROUND(SUM(s.profit), 2)     AS total_profit,
-    ROUND(AVG(s.revenue), 2)    AS avg_revenue_per_sale,
-    RANK() OVER (ORDER BY SUM(s.revenue) DESC) AS day_rank
+    CASE ca.day_of_week
+        WHEN 0 THEN 'Monday'
+        WHEN 1 THEN 'Tuesday'
+        WHEN 2 THEN 'Wednesday'
+        WHEN 3 THEN 'Thursday'
+        WHEN 4 THEN 'Friday'
+        WHEN 5 THEN 'Saturday'
+        WHEN 6 THEN 'Sunday'
+    END AS day_name,
+    COUNT(DISTINCT ca.`date`)                                      AS total_days_in_period,
+    COUNT(DISTINCT s.order_id)                                     AS total_orders,
+    SUM(s.quantity)                                                 AS total_units,
+    ROUND(SUM(s.revenue), 2)                                       AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                        AS total_profit,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT ca.`date`), 2)           AS avg_daily_revenue,
+    ROUND(SUM(s.profit) / COUNT(DISTINCT ca.`date`), 2)            AS avg_daily_profit,
+    ROUND(COUNT(DISTINCT s.order_id) * 1.0 / COUNT(DISTINCT ca.`date`), 1) AS avg_daily_orders,
+    RANK() OVER (ORDER BY SUM(s.revenue) / COUNT(DISTINCT ca.`date`) DESC) AS day_rank
 FROM sales s
 INNER JOIN calendar ca ON s.order_date = ca.`date`
 GROUP BY ca.day_of_week
-ORDER BY total_revenue DESC;
+ORDER BY ca.day_of_week ASC;
 
--- Q: How does weekday vs weekend performance compare?
+-- Q: How does weekend (Saturday & Sunday) performance compare against weekdays (Monday-Friday)?
 SELECT
     CASE
-        WHEN ca.day_of_week IN ('Saturday', 'Sunday') THEN 'Weekend'
-        ELSE 'Weekday'
+        WHEN ca.day_of_week IN (5, 6) THEN 'Weekend (Sat-Sun)'
+        ELSE 'Weekday (Mon-Fri)'
     END AS day_type,
-    COUNT(DISTINCT s.order_id)  AS total_orders,
-    SUM(s.quantity)              AS total_quantity,
-    ROUND(SUM(s.revenue), 2)    AS total_revenue,
-    ROUND(SUM(s.profit), 2)     AS total_profit,
-    ROUND(AVG(s.revenue), 2)    AS avg_revenue_per_sale
+    COUNT(DISTINCT ca.`date`)                                      AS total_calendar_days,
+    COUNT(DISTINCT s.order_id)                                     AS total_orders,
+    SUM(s.quantity)                                                 AS total_units,
+    ROUND(SUM(s.revenue), 2)                                       AS total_revenue,
+    ROUND(SUM(s.profit), 2)                                        AS total_profit,
+    ROUND(SUM(s.revenue) / COUNT(DISTINCT ca.`date`), 2)           AS avg_daily_revenue,
+    ROUND(SUM(s.profit) / COUNT(DISTINCT ca.`date`), 2)            AS avg_daily_profit,
+    ROUND(COUNT(DISTINCT s.order_id) * 1.0 / COUNT(DISTINCT ca.`date`), 1) AS avg_daily_orders
 FROM sales s
 INNER JOIN calendar ca ON s.order_date = ca.`date`
 GROUP BY day_type
-ORDER BY total_revenue DESC;
+ORDER BY day_type ASC;
 
 -- =============================================================================
--- SECTION 4: HOLIDAY PERIOD ANALYSIS
+-- SECTION 3: HOLIDAY WINDOW IMPACT ANALYSIS (CHRISTMAS & THANKSGIVING)
+-- Methodology:
+-- - Christmas Window: Dec 20 to Dec 26 (7 days/yr = 14 total days across 2023 & 2024)
+-- - Thanksgiving Window: 7-day window centered on US Thanksgiving (date ± 3 days):
+--     * 2023 Thanksgiving (Nov 23): Nov 20 to Nov 26 (7 days)
+--     * 2024 Thanksgiving (Nov 28): Nov 25 to Dec 01 (7 days)
+-- - Regular Days: All remaining 703 calendar days
+-- Metrics compared via Average Daily Revenue and Average Daily Orders.
 -- =============================================================================
 
--- Q: How does revenue perform during the Christmas period (Dec 20-26) compared to non-holiday December?
-WITH december_sales AS (
+-- Q: Do Christmas and Thanksgiving windows produce a measurable sales uplift compared
+--    to regular operating days?
+WITH daily_sales_aggregated AS (
     SELECT
-        s.order_id,
         s.order_date,
-        s.revenue,
-        s.profit,
-        s.quantity,
+        COUNT(DISTINCT s.order_id) AS daily_orders,
+        SUM(s.quantity)             AS daily_quantity,
+        SUM(s.revenue)              AS daily_revenue,
+        SUM(s.profit)               AS daily_profit,
         CASE
-            WHEN DAY(s.order_date) BETWEEN 20 AND 26 THEN 'Christmas (Dec 20-26)'
-            ELSE 'Other December'
-        END AS period
+            -- Christmas Window (Dec 20 - Dec 26 in 2023 and 2024)
+            WHEN (s.order_date BETWEEN '2023-12-20' AND '2023-12-26')
+              OR (s.order_date BETWEEN '2024-12-20' AND '2024-12-26')
+            THEN 'Christmas Window (Dec 20-26)'
+
+            -- Thanksgiving Window (7-day window: Thanksgiving ± 3 days)
+            WHEN (s.order_date BETWEEN '2023-11-20' AND '2023-11-26')
+              OR (s.order_date BETWEEN '2024-11-25' AND '2024-12-01')
+            THEN 'Thanksgiving Window (+/- 3 days)'
+
+            ELSE 'Regular Operating Days'
+        END AS period_type
     FROM sales s
-    WHERE MONTH(s.order_date) = 12
+    GROUP BY s.order_date
 )
 SELECT
-    period,
-    COUNT(DISTINCT order_id)  AS total_orders,
-    SUM(quantity)              AS total_quantity,
-    ROUND(SUM(revenue), 2)    AS total_revenue,
-    ROUND(SUM(profit), 2)     AS total_profit,
-    ROUND(AVG(revenue), 2)    AS avg_revenue_per_sale
-FROM december_sales
-GROUP BY period
-ORDER BY period;
-
--- Q: How does Thanksgiving week (US: 4th Thursday of November, approx Nov 22-28) affect sales?
-WITH november_sales AS (
-    SELECT
-        s.order_id,
-        s.order_date,
-        s.revenue,
-        s.profit,
-        s.quantity,
-        CASE
-            WHEN DAY(s.order_date) BETWEEN 22 AND 28 THEN 'Thanksgiving Week (Nov 22-28)'
-            ELSE 'Other November'
-        END AS period
-    FROM sales s
-    WHERE MONTH(s.order_date) = 11
-)
-SELECT
-    period,
-    COUNT(DISTINCT order_id)  AS total_orders,
-    SUM(quantity)              AS total_quantity,
-    ROUND(SUM(revenue), 2)    AS total_revenue,
-    ROUND(SUM(profit), 2)     AS total_profit,
-    ROUND(AVG(revenue), 2)    AS avg_revenue_per_sale
-FROM november_sales
-GROUP BY period
-ORDER BY period;
-
--- Q: How do holiday months (November, December) compare to non-holiday months?
-SELECT
-    CASE
-        WHEN MONTH(s.order_date) IN (11, 12) THEN 'Holiday Months (Nov-Dec)'
-        ELSE 'Non-Holiday Months'
-    END AS season,
-    YEAR(s.order_date)              AS sales_year,
-    COUNT(DISTINCT s.order_id)      AS total_orders,
-    SUM(s.quantity)                  AS total_quantity,
-    ROUND(SUM(s.revenue), 2)        AS total_revenue,
-    ROUND(SUM(s.profit), 2)         AS total_profit,
-    ROUND(AVG(s.revenue), 2)        AS avg_revenue_per_sale
-FROM sales s
-GROUP BY season, YEAR(s.order_date)
-ORDER BY sales_year, season;
+    period_type,
+    COUNT(DISTINCT order_date)                                     AS total_days_in_period,
+    ROUND(SUM(daily_revenue), 2)                                   AS total_period_revenue,
+    ROUND(SUM(daily_profit), 2)                                    AS total_period_profit,
+    ROUND(AVG(daily_revenue), 2)                                   AS avg_daily_revenue,
+    ROUND(AVG(daily_profit), 2)                                    AS avg_daily_profit,
+    ROUND(AVG(daily_orders), 1)                                    AS avg_daily_orders,
+    ROUND(AVG(daily_quantity), 1)                                  AS avg_daily_units,
+    ROUND((AVG(daily_revenue) - 34904.38) / 34904.38 * 100, 2)     AS uplift_vs_regular_pct
+FROM daily_sales_aggregated
+GROUP BY period_type
+ORDER BY avg_daily_revenue DESC;

@@ -2,9 +2,9 @@
 
 ## 1. Architectural Overview
 
-The Retail Store Analysis project implements a classic **Dimensional Star Schema** optimized for high-performance analytical querying and business intelligence reporting. 
+The Retail Store Analysis project implements a **Dimensional Star Schema** optimized for high-performance analytical querying in SQL engines and star-schema processing in Power BI's VertiPaq tabular engine.
 
-The schema consists of one central transaction Fact Table (`sales`) surrounded by four Dimension Tables (`products`, `customers`, `stores`, and `calendar`). This design provides optimal aggregation efficiency in SQL engines and star-schema optimization in Power BI's VertiPaq columnar in-memory engine.
+The schema consists of one central transaction Fact Table (`sales`) surrounded by four Dimension Tables (`products`, `customers`, `stores`, and `calendar`).
 
 ---
 
@@ -64,8 +64,9 @@ The schema consists of one central transaction Fact Table (`sales`) surrounded b
 ### 3.1 Fact Table: `sales`
 - **Business Grain:** One line item per order transaction.
 - **Row Count:** 1,000,000 records.
-- **Total Gross Revenue:** $24,498,421.43
-- **Total Operating Profit:** $9,692,201.21
+- **Total Gross Revenue:** **$25,486,128.86**
+- **Total Operating Profit:** **$10,194,564.63**
+- **Total COGS:** **$15,291,554.40**
 
 | Column Name | SQL Data Type | Key Type | Description | Sample / Constraints |
 |---|---|---|---|---|
@@ -76,53 +77,53 @@ The schema consists of one central transaction Fact Table (`sales`) surrounded b
 | `customer_id` | VARCHAR(10) | **Foreign Key** | Customer who placed the order | References `customers.customer_id` |
 | `quantity` | INT | Measure | Number of units purchased | Integer values 1 to 5 |
 | `unit_price` | DECIMAL(10,2) | Measure | Baseline list price per unit | $10.00 to $20.00 |
-| `discount` | DECIMAL(5,2) | Measure | Discount percentage applied | 0.00, 0.05, 0.10, 0.15, 0.20 |
-| `revenue` | DECIMAL(10,2) | Measure | Net sales amount after discount | $8.00 to $99.95 |
-| `cost` | DECIMAL(10,2) | Measure | Total cost of goods sold (COGS) | $4.00 to $70.00 |
-| `profit` | DECIMAL(10,2) | Measure | Net profit before overhead (`revenue - cost`) | $2.00 to $45.00 |
+| `discount` | DECIMAL(5,2) | Measure | Discount percentage applied | 0.00 to 0.20 (Mean: 5.62%) |
+| `revenue` | DECIMAL(12,2) | Measure | Net sales amount after discount | $8.00 to $99.95 |
+| `cost` | DECIMAL(12,2) | Measure | Total cost of goods sold (COGS) | $4.00 to $70.00 |
+| `profit` | DECIMAL(12,2) | Measure | Net operating profit (`revenue - cost`) | $2.00 to $45.00 |
 
 ### 3.2 Dimension Table: `products`
-- **Business Grain:** One row per catalog chocolate product SKU.
+- **Business Grain:** One row per catalog chocolate SKU.
 - **Row Count:** 200 records.
 
-| Column Name | SQL Data Type | Key Type | Description | Allowed Values / Ranges |
+| Column Name | SQL Data Type | Key Type | Description | Catalog Breakdown |
 |---|---|---|---|---|
 | `product_id` | VARCHAR(10) | **Primary Key** | Unique SKU identifier | `P0001` through `P0200` |
 | `product_name` | VARCHAR(100) | Attribute | Full descriptive product label | e.g., "White Chocolate 80%" |
-| `brand` | VARCHAR(50) | Attribute | Chocolate manufacturing brand | Cadbury, Ferrero, Godiva, Hershey, Lindt, Mars |
-| `category` | VARCHAR(50) | Attribute | Confectionery category format | Bar, Bites, Praline, Truffle |
-| `cocoa_percent` | INT | Attribute | Percentage cocoa solids | 50%, 60%, 70%, 80% |
-| `weight_g` | INT | Attribute | Product package net weight in grams | 80g, 100g, 120g, 150g, 200g |
+| `brand` | VARCHAR(50) | Attribute | Confectionery brand | Cadbury (37), Ferrero (37), Godiva (30), Hershey (28), Lindt (35), Mars (33) |
+| `category` | VARCHAR(50) | Attribute | Product category format | Dark (42), Milk (26), Praline (53), Truffle (31), White (48) |
+| `cocoa_percent` | INT | Attribute | Percentage cocoa solids | 50% (51), 60% (30), 70% (43), 80% (37), 90% (39) |
+| `weight_g` | INT | Attribute | Product package net weight in grams | 50g (48), 80g (31), 100g (47), 120g (36), 200g (38) |
 
 ### 3.3 Dimension Table: `customers`
-- **Business Grain:** One row per registered loyalty / customer profile.
+- **Business Grain:** One row per registered customer profile.
 - **Row Count:** 50,000 records.
 
-| Column Name | SQL Data Type | Key Type | Description | Allowed Values / Ranges |
+| Column Name | SQL Data Type | Key Type | Description | Distribution |
 |---|---|---|---|---|
 | `customer_id` | VARCHAR(10) | **Primary Key** | Unique customer identifier | `C000001` through `C050000` |
-| `age` | INT | Attribute | Customer chronological age | Integer between 18 and 70 |
-| `gender` | VARCHAR(10) | Attribute | Self-reported customer gender | 'Female' (50.1%), 'Male' (49.9%) |
-| `loyalty_member` | INT | Attribute | Loyalty membership enrollment flag | 0 = Non-Member, 1 = Member |
+| `age` | INT | Attribute | Customer chronological age | Integer between 18 and 70 (Mean: 44.02) |
+| `gender` | VARCHAR(10) | Attribute | Self-reported customer gender | 'Female' (49.5%), 'Male' (50.5%) |
+| `loyalty_member` | INT | Attribute | Loyalty membership enrollment flag | 0 = Non-Member (49.8%), 1 = Member (50.2%) |
 | `join_date` | DATE | Attribute | Registration date | 2020-01-01 through 2025-12-31 |
 
 ### 3.4 Dimension Table: `stores`
-- **Business Grain:** One row per retail facility or digital storefront.
+- **Business Grain:** One row per retail facility or storefront.
 - **Row Count:** 100 records.
 
-| Column Name | SQL Data Type | Key Type | Description | Allowed Values / Ranges |
+| Column Name | SQL Data Type | Key Type | Description | Distribution |
 |---|---|---|---|---|
 | `store_id` | VARCHAR(10) | **Primary Key** | Unique facility identifier | `S001` through `S100` |
 | `store_name` | VARCHAR(100) | Attribute | Facility designation | "Chocolate Store 1" to "100" |
-| `city` | VARCHAR(50) | Attribute | Metropolitan market location | Berlin, London, Melbourne, New York, Paris, Sydney, Toronto |
-| `country` | VARCHAR(50) | Attribute | Assigned country jurisdiction | Australia, Canada, France, Germany, UK, USA |
-| `store_type` | VARCHAR(30) | Attribute | Operating channel model | Retail (40), Mall (25), Online (20), Airport (15) |
+| `city` | VARCHAR(50) | Attribute | Metropolitan market location | Berlin (10), London (16), Melbourne (12), New York (15), Paris (16), Sydney (13), Toronto (18) |
+| `country` | VARCHAR(50) | Attribute | Assigned country jurisdiction | Australia (15), Canada (20), France (14), Germany (11), UK (16), USA (24) |
+| `store_type` | VARCHAR(30) | Attribute | Operating channel model | Airport (30), Mall (26), Online (25), Retail (19) |
 
 ### 3.5 Dimension Table: `calendar`
 - **Business Grain:** One row per Gregorian calendar day.
 - **Row Count:** 731 records (covers 2023 and 2024 leap year).
 
-| Column Name | SQL Data Type | Key Type | Description | Allowed Values / Ranges |
+| Column Name | SQL Data Type | Key Type | Description | Values / Encoding |
 |---|---|---|---|---|
 | `date` | DATE | **Primary Key** | Gregorian date identifier | 2023-01-01 to 2024-12-31 |
 | `year` | INT | Attribute | Calendar year | 2023, 2024 |
@@ -139,7 +140,7 @@ The schema consists of one central transaction Fact Table (`sales`) surrounded b
    - **Primary Key:** `calendar.date`
    - **Foreign Key:** `sales.order_date`
    - **Cardinality:** 1 to Many (1:N)
-   - **Enforcement:** Each date in 2023–2024 has ~1,368 sales transactions.
+   - **Enforcement:** Exactly 731 dates in 2023–2024; average of 1,368 sales transactions per day.
 
 2. **`customers` (1) ───< (N) `sales`**
    - **Primary Key:** `customers.customer_id`
@@ -157,12 +158,4 @@ The schema consists of one central transaction Fact Table (`sales`) surrounded b
    - **Primary Key:** `products.product_id`
    - **Foreign Key:** `sales.product_id`
    - **Cardinality:** 1 to Many (1:N)
-   - **Known Integrity Exception:** 9,764 transactions in `sales` reference `P0000` (4,932) and `P0201` (4,832), which do not exist in the 200-row product master. Handled in ETL/modeling via outer joins or an 'Unknown SKU' dimension placeholder.
-
----
-
-## 5. Analytical Integrity & Star Schema Benefits
-
-- **Performance Optimization:** Star schema eliminates complex multi-table snowflake joins, accelerating aggregations across 1,000,000 fact rows.
-- **Measure Reusability:** Measures defined on `sales` (`Total Revenue`, `Total Profit`, `Total Units`) slice seamlessly across any combination of time, customer, product, and store dimensions without double-counting.
-- **Compatibility:** Directly aligns with standard SQL reporting and Power BI's VertiPaq tabular storage architecture.
+   - **Known Integrity Exception:** 9,764 transactions in `sales` reference `P0000` (4,895) and `P0201` (4,869), which do not exist in the 200-row product master. Handled via outer joins or an 'Unassigned SKU' dimension placeholder.

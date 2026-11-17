@@ -1,18 +1,18 @@
 -- =============================================================================
 -- 01_data_audit.sql
--- Data quality checks: missing values, duplicates, referential integrity,
--- range validation, and calculation verification
+-- Empirical Data Quality Audit, Integrity Checks, & Reconciliation
+-- Retail Stores Sales Analysis (2023-2024)
 -- =============================================================================
 
 USE retail_store_analysis;
 
 -- =============================================================================
--- SECTION 1: MISSING VALUE CHECKS
+-- SECTION 1: NULL AND MISSING VALUE AUDITING
 -- =============================================================================
 
--- Q: Are there any missing (NULL) values in the sales table?
+-- Q: Are there any NULL or missing values across the 1,000,000 sales transactions?
 SELECT
-    COUNT(*)                       AS row_count,
+    COUNT(*)                       AS total_rows,
     SUM(order_id IS NULL)          AS missing_order_id,
     SUM(order_date IS NULL)        AS missing_order_date,
     SUM(product_id IS NULL)        AS missing_product_id,
@@ -26,192 +26,158 @@ SELECT
     SUM(profit IS NULL)            AS missing_profit
 FROM sales;
 
--- Q: Are there any missing (NULL) values in the products table?
-SELECT
-    COUNT(*)                        AS total_rows,
-    SUM(product_id IS NULL)         AS missing_product_id,
-    SUM(product_name IS NULL)       AS missing_product_name,
-    SUM(brand IS NULL)              AS missing_brand,
-    SUM(category IS NULL)           AS missing_category,
-    SUM(cocoa_percent IS NULL)      AS missing_cocoa_percent,
-    SUM(weight_g IS NULL)           AS missing_weight_g
-FROM products;
-
--- Q: Are there any missing (NULL) values in the stores table?
-SELECT
-    COUNT(*)                    AS total_rows,
-    SUM(store_name IS NULL)     AS missing_store_name,
-    SUM(city IS NULL)           AS missing_city,
-    SUM(country IS NULL)        AS missing_country,
-    SUM(store_type IS NULL)     AS missing_store_type
-FROM stores;
-
--- Q: Are there any missing (NULL) values in the customers table?
-SELECT
-    COUNT(*)                        AS total_rows,
-    SUM(customer_id IS NULL)        AS missing_customer_id,
-    SUM(age IS NULL)                AS missing_age,
-    SUM(gender IS NULL)             AS missing_gender,
-    SUM(loyalty_member IS NULL)     AS missing_loyalty_member,
-    SUM(join_date IS NULL)          AS missing_join_date
-FROM customers;
-
--- Q: Are there any missing (NULL) values in the calendar table?
-SELECT
-    COUNT(*)                       AS total_rows,
-    SUM(`date` IS NULL)            AS missing_date,
-    SUM(`year` IS NULL)            AS missing_year,
-    SUM(`month` IS NULL)           AS missing_month,
-    SUM(`day` IS NULL)             AS missing_day,
-    SUM(`week` IS NULL)            AS missing_week,
-    SUM(`day_of_week` IS NULL)     AS missing_day_of_week
+-- Q: Are there any NULL values in the dimension tables?
+SELECT 'products' AS table_name,
+    COUNT(*) AS total_rows,
+    SUM(product_id IS NULL OR product_name IS NULL OR brand IS NULL OR category IS NULL OR cocoa_percent IS NULL OR weight_g IS NULL) AS rows_with_nulls
+FROM products
+UNION ALL
+SELECT 'customers', COUNT(*), SUM(customer_id IS NULL OR age IS NULL OR gender IS NULL OR loyalty_member IS NULL OR join_date IS NULL)
+FROM customers
+UNION ALL
+SELECT 'stores', COUNT(*), SUM(store_id IS NULL OR store_name IS NULL OR city IS NULL OR country IS NULL OR store_type IS NULL)
+FROM stores
+UNION ALL
+SELECT 'calendar', COUNT(*), SUM(`date` IS NULL OR `year` IS NULL OR `month` IS NULL OR `day` IS NULL OR `week` IS NULL OR `day_of_week` IS NULL)
 FROM calendar;
 
 -- =============================================================================
--- SECTION 2: DUPLICATE CHECKS
+-- SECTION 2: CANDIDATE KEY UNIQUENESS & GRAIN VALIDATION
 -- =============================================================================
 
--- Q: Are there duplicate order IDs in the sales table?
+-- Q: Does each primary key candidate uniquely identify each record with zero duplicates?
 SELECT
-    COUNT(DISTINCT order_id) AS unique_order_ids,
-    COUNT(*)                 AS total_rows,
-    COUNT(*) - COUNT(DISTINCT order_id) AS duplicates
-FROM sales;
-
--- Q: Are there duplicate customer IDs in the customers table?
-SELECT
-    COUNT(DISTINCT customer_id) AS unique_customers,
-    COUNT(customer_id)          AS total_customers,
-    COUNT(customer_id) - COUNT(DISTINCT customer_id) AS duplicates
-FROM customers;
-
--- Q: Are there duplicate product IDs in the products table?
-SELECT
-    COUNT(*)                     AS total_rows,
-    COUNT(DISTINCT product_id)   AS unique_product_ids,
-    COUNT(*) - COUNT(DISTINCT product_id) AS duplicates
-FROM products;
-
--- Q: Are there duplicate store IDs in the stores table?
-SELECT
-    COUNT(*)                    AS total_rows,
-    COUNT(DISTINCT store_id)    AS unique_store_ids,
-    COUNT(*) - COUNT(DISTINCT store_id) AS duplicates
-FROM stores;
-
--- Q: Are there duplicate dates in the calendar table?
-SELECT
-    COUNT(*)                    AS total_rows,
-    COUNT(DISTINCT `date`)      AS unique_dates,
-    COUNT(*) - COUNT(DISTINCT `date`) AS duplicates
-FROM calendar;
+    'sales.order_id' AS key_name,
+    COUNT(DISTINCT order_id) AS unique_keys,
+    COUNT(*) AS total_rows,
+    COUNT(*) - COUNT(DISTINCT order_id) AS duplicate_rows
+FROM sales
+UNION ALL
+SELECT 'products.product_id', COUNT(DISTINCT product_id), COUNT(*), COUNT(*) - COUNT(DISTINCT product_id) FROM products
+UNION ALL
+SELECT 'customers.customer_id', COUNT(DISTINCT customer_id), COUNT(*), COUNT(*) - COUNT(DISTINCT customer_id) FROM customers
+UNION ALL
+SELECT 'stores.store_id', COUNT(DISTINCT store_id), COUNT(*), COUNT(*) - COUNT(DISTINCT store_id) FROM stores
+UNION ALL
+SELECT 'calendar.date', COUNT(DISTINCT `date`), COUNT(*), COUNT(*) - COUNT(DISTINCT `date`) FROM calendar;
 
 -- =============================================================================
--- SECTION 3: RANGE / SANITY CHECKS
+-- SECTION 3: REFERENTIAL INTEGRITY & ORPHAN KEY AUDITING
 -- =============================================================================
 
--- Q: Are there any zero or negative quantities in sales?
+-- Q: How many sales records reference dimension keys that do not exist in the dimension tables?
 SELECT
-    MIN(quantity) AS min_quantity,
-    MAX(quantity) AS max_quantity,
-    AVG(quantity) AS avg_quantity,
-    SUM(quantity = 0)  AS zero_quantity_rows,
-    SUM(quantity < 0)  AS negative_quantity_rows
-FROM sales;
-
--- Q: Are cocoa_percent and weight_g within valid ranges in the products table?
-SELECT
-    MIN(cocoa_percent) AS min_cocoa_percent,
-    MAX(cocoa_percent) AS max_cocoa_percent,
-    MIN(weight_g)      AS min_weight_g,
-    MAX(weight_g)      AS max_weight_g,
-    SUM(cocoa_percent <= 0 OR cocoa_percent > 100) AS invalid_cocoa_rows,
-    SUM(weight_g <= 0)                             AS invalid_weight_rows
-FROM products;
-
--- Q: What is the date range and value range in the calendar table?
-SELECT
-    MIN(`date`)        AS first_date,
-    MAX(`date`)        AS last_date,
-    MIN(`month`)       AS min_month,
-    MAX(`month`)       AS max_month,
-    MIN(`day`)         AS min_day,
-    MAX(`day`)         AS max_day,
-    MIN(`day_of_week`) AS min_day_of_week,
-    MAX(`day_of_week`) AS max_day_of_week
-FROM calendar;
-
--- Q: What is the product_id range in the products table?
-SELECT
-    MIN(product_id) AS first_product_id,
-    MAX(product_id) AS last_product_id
-FROM products;
-
--- =============================================================================
--- SECTION 4: REFERENTIAL INTEGRITY CHECKS
--- =============================================================================
-
--- Q: Do all foreign keys in sales match their parent tables (customers, products, stores, calendar)?
-SELECT
-    SUM(c.customer_id IS NULL)  AS missing_customer_id,
-    SUM(p.product_id IS NULL)   AS missing_product_id,
-    SUM(st.store_id IS NULL)    AS missing_store_id,
-    SUM(ca.`date` IS NULL)      AS missing_date
+    COUNT(*) AS total_sales,
+    SUM(CASE WHEN c.customer_id IS NULL THEN 1 ELSE 0 END) AS orphan_customer_sales,
+    SUM(CASE WHEN st.store_id IS NULL THEN 1 ELSE 0 END)   AS orphan_store_sales,
+    SUM(CASE WHEN ca.`date` IS NULL THEN 1 ELSE 0 END)     AS orphan_date_sales,
+    SUM(CASE WHEN p.product_id IS NULL THEN 1 ELSE 0 END)  AS orphan_product_sales
 FROM sales s
-LEFT JOIN customers c  ON s.customer_id = c.customer_id
-LEFT JOIN products p   ON s.product_id  = p.product_id
-LEFT JOIN stores st    ON s.store_id    = st.store_id
-LEFT JOIN calendar ca  ON s.order_date  = ca.`date`;
+LEFT JOIN customers c ON s.customer_id = c.customer_id
+LEFT JOIN stores st   ON s.store_id = st.store_id
+LEFT JOIN calendar ca ON s.order_date = ca.`date`
+LEFT JOIN products p  ON s.product_id = p.product_id;
 
--- Q: Which product IDs in sales have no matching record in the products table, and how many sales are affected?
+-- Q: What are the exact orphan product IDs in sales, how many transactions do they affect,
+--    and what revenue and profit do they represent?
 SELECT
     s.product_id,
-    COUNT(*) AS affected_sales
+    COUNT(*)                     AS affected_transactions,
+    ROUND(SUM(s.quantity), 0)    AS total_units,
+    ROUND(SUM(s.revenue), 2)     AS orphan_revenue,
+    ROUND(SUM(s.profit), 2)      AS orphan_profit,
+    ROUND(AVG(s.unit_price), 2)  AS avg_unit_price,
+    ROUND(AVG(s.discount) * 100, 2) AS avg_discount_pct
 FROM sales s
 LEFT JOIN products p ON s.product_id = p.product_id
 WHERE p.product_id IS NULL
 GROUP BY s.product_id
-ORDER BY affected_sales DESC;
-
--- Q: Do the unmatched product IDs P0000 and P0201 exist in the sales data?
--- (These product IDs were found to not exist in the products table.)
-SELECT product_id, COUNT(*) AS occurrences
-FROM sales
-WHERE product_id IN ('P0000', 'P0201')
-GROUP BY product_id;
+ORDER BY s.product_id;
 
 -- =============================================================================
--- SECTION 5: REVENUE / PROFIT CALCULATION VALIDATION
+-- SECTION 4: MATHEMATICAL CALCULATION DISCREPANCIES (ONE-CENT vs > ONE-CENT)
 -- =============================================================================
 
--- Q: Does revenue equal quantity * unit_price * (1 - discount) for all rows?
+-- Q: How do source revenue values compare against `ROUND(quantity * unit_price * (1 - discount), 2)`?
+--    We evaluate:
+--    - Exact match (difference = 0.00)
+--    - Exact negative one-cent mismatch (calc - source = -0.01)
+--    - Exact positive one-cent mismatch (calc - source = +0.01)
+--    - Severe mismatch (|calc - source| > 0.01)
+WITH revenue_audit AS (
+    SELECT
+        order_id,
+        revenue AS recorded_revenue,
+        ROUND(quantity * unit_price * (1.0 - discount), 2) AS calculated_revenue,
+        ROUND(ROUND(quantity * unit_price * (1.0 - discount), 2) - revenue, 2) AS diff
+    FROM sales
+)
 SELECT
-    COUNT(*) AS total_rows,
-    SUM(
-        ABS(revenue - (quantity * unit_price * (1 - discount))) > 0.01
-    ) AS revenue_mismatch_count
-FROM sales;
+    CASE
+        WHEN diff = 0.00   THEN '01. Exact Match (diff = $0.00)'
+        WHEN diff = -0.01  THEN '02. Under-calculated by 1 cent (diff = -$0.01)'
+        WHEN diff = 0.01   THEN '03. Over-calculated by 1 cent (diff = +$0.01)'
+        WHEN ABS(diff) > 0.01 THEN '04. Severe discrepancy (|diff| > $0.01)'
+        ELSE '05. Other minor variance'
+    END AS discrepancy_category,
+    COUNT(*) AS transaction_count,
+    ROUND(COUNT(*) / 1000000.0 * 100, 3) AS pct_of_total_sales
+FROM revenue_audit
+GROUP BY discrepancy_category
+ORDER BY discrepancy_category;
 
--- Q: Does profit equal revenue - cost for all rows?
+-- Q: How do source profit values compare against `ROUND(revenue - cost, 2)`?
+WITH profit_audit AS (
+    SELECT
+        order_id,
+        profit AS recorded_profit,
+        ROUND(revenue - cost, 2) AS calculated_profit,
+        ROUND(ROUND(revenue - cost, 2) - profit, 2) AS diff
+    FROM sales
+)
 SELECT
-    COUNT(*) AS total_rows,
-    SUM(
-        ABS(profit - (revenue - cost)) > 0.01
-    ) AS profit_mismatch_count
-FROM sales;
+    CASE
+        WHEN diff = 0.00   THEN '01. Exact Match (diff = $0.00)'
+        WHEN diff = -0.01  THEN '02. Under-calculated by 1 cent (diff = -$0.01)'
+        WHEN diff = 0.01   THEN '03. Over-calculated by 1 cent (diff = +$0.01)'
+        WHEN ABS(diff) > 0.01 THEN '04. Severe discrepancy (|diff| > $0.01)'
+        ELSE '05. Other minor variance'
+    END AS discrepancy_category,
+    COUNT(*) AS transaction_count,
+    ROUND(COUNT(*) / 1000000.0 * 100, 3) AS pct_of_total_sales
+FROM profit_audit
+GROUP BY discrepancy_category
+ORDER BY discrepancy_category;
 
--- Q: Show sample rows where revenue or profit calculations do not match
+-- =============================================================================
+-- SECTION 5: GEOGRAPHIC DISCORDANCE AUDITING (STORES)
+-- =============================================================================
+
+-- Q: How many store records have cities assigned to discordant countries in the source data?
+--    Real-world mappings:
+--    Berlin -> Germany, London -> UK, Melbourne -> Australia, New York -> USA,
+--    Paris -> France, Sydney -> Australia, Toronto -> Canada
+WITH geo_audit AS (
+    SELECT
+        store_id,
+        store_name,
+        city,
+        country,
+        CASE
+            WHEN city = 'Berlin'    AND country = 'Germany'   THEN 'Consistent'
+            WHEN city = 'London'    AND country = 'UK'        THEN 'Consistent'
+            WHEN city = 'Melbourne' AND country = 'Australia' THEN 'Consistent'
+            WHEN city = 'New York'  AND country = 'USA'       THEN 'Consistent'
+            WHEN city = 'Paris'     AND country = 'France'    THEN 'Consistent'
+            WHEN city = 'Sydney'    AND country = 'Australia' THEN 'Consistent'
+            WHEN city = 'Toronto'   AND country = 'Canada'    THEN 'Consistent'
+            ELSE 'Discordant / Mismatched'
+        END AS mapping_status
+    FROM stores
+)
 SELECT
-    order_id,
-    quantity,
-    unit_price,
-    discount,
-    revenue,
-    cost,
-    profit,
-    ROUND(quantity * unit_price * (1 - discount), 2) AS expected_revenue,
-    ROUND(revenue - cost, 2)                         AS expected_profit
-FROM sales
-WHERE ABS(revenue - (quantity * unit_price * (1 - discount))) > 0.01
-   OR ABS(profit - (revenue - cost)) > 0.01
-LIMIT 20;
+    mapping_status,
+    COUNT(*) AS store_count,
+    ROUND(COUNT(*) / 100.0 * 100, 1) AS pct_of_stores
+FROM geo_audit
+GROUP BY mapping_status;

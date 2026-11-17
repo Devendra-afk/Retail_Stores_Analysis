@@ -4,7 +4,7 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg?logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Power BI](https://img.shields.io/badge/Power_BI-Desktop-yellow.svg?logo=powerbi&logoColor=white)](https://powerbi.microsoft.com/)
 [![Pandas](https://img.shields.io/badge/Pandas-2.2-150458.svg?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Status](https://img.shields.io/badge/Status-Complete_%26_Validated-success.svg)]()
+[![Status](https://img.shields.io/badge/Status-Complete_%26_Reconciled-success.svg)]()
 [![Portfolio](https://img.shields.io/badge/Data_Analyst-Portfolio_Project-purple.svg)]()
 
 An end-to-end commercial retail sales analytics portfolio project demonstrating database modeling, empirical data quality auditing, exploratory data analysis (EDA), complex SQL querying, DAX modeling, and executive dashboard development across **1,000,000 transactions**.
@@ -13,17 +13,18 @@ An end-to-end commercial retail sales analytics portfolio project demonstrating 
 
 ## 📌 Executive Summary & Key Results
 
-Over the 2023–2024 operating period (731 calendar days), the retail chocolate business generated **$24,498,421.43 in gross revenue** and **$9,692,201.21 in operating profit** across 100 stores and 200 catalog SKUs, achieving an overall operating margin of **39.56%**.
+Over the 2023–2024 operating period (731 calendar days), the retail chocolate business generated **$25,486,128.86 in gross revenue** and **$10,194,564.63 in operating profit** across 100 stores and 200 catalog SKUs, achieving an overall operating margin of **40.00%**.
 
 | Portfolio Metric | Validated Value | Benchmark Notes |
 |---|---|---|
-| **Total Gross Revenue** | **$24,498,421.43** | Cross-validated across MySQL, Pandas, and Power BI |
-| **Total Operating Profit** | **$9,692,201.21** | Total COGS: $14,806,220.22 |
-| **Overall Profit Margin** | **39.56%** | Consistent ~39.5% across all 6 brands |
+| **Total Gross Revenue** | **$25,486,128.86** | Cross-validated across MySQL, Pandas, and Power BI |
+| **Total Operating Profit** | **$10,194,564.63** | Total COGS: $15,291,554.40 |
+| **Overall Profit Margin** | **40.00%** | Consistent ~40.0% operating margin across brands |
 | **Total Orders** | **1,000,000** | Distinct transactional order line items |
-| **Total Volume Sold** | **2,999,021 units** | Average basket size of 3.00 units/order |
-| **Average Order Value (AOV)**| **$24.50** | Stable basket size across customer segments |
-| **Active Customer Base** | **50,000 customers** | Average 20 transactions & $490 spend per customer |
+| **Total Volume Sold** | **2,999,589 units** | Average basket size of 3.00 units/order |
+| **Average Order Value (AOV)**| **$25.49** | Stable basket size across customer segments |
+| **Average Selling Price (ASP)**| **$8.50** | Realized net price per chocolate unit |
+| **Active Customer Base** | **50,000 customers** | Average 20 transactions & $509.72 spend per customer |
 | **Retail Store Network** | **100 facilities** | 4 channel formats across 7 metropolitan markets |
 
 ---
@@ -45,7 +46,7 @@ The interactive Power BI report is structured into 4 decision-focused pages, mod
 ---
 
 ### Page 3: Customer Demographics & Store Operations
-*Customer age bracket spend, gender distribution, loyalty membership impact comparison, and average store productivity.*
+*Customer age bracket spend, gender distribution, loyalty membership comparison, and average store productivity.*
 ![Customer and Store Analysis](screenshots/03_customer_store_analysis.png)
 
 ---
@@ -60,11 +61,11 @@ The interactive Power BI report is structured into 4 decision-focused pages, mod
 
 | Layer | Technology | Primary Functionality |
 |---|---|---|
-| **Database Engine** | **MySQL 8.0** | DDL schema design, constraints, indexing, and business querying with CTEs and window functions (`RANK`, `ROW_NUMBER`, `LAG`). |
+| **Database Engine** | **MySQL 8.0** | DDL schema design, staging architecture, constraints, indexing, and business querying with CTEs and window functions (`RANK`, `ROW_NUMBER`, `LAG`). |
 | **Exploratory Analytics** | **Python 3.11 / Pandas / NumPy** | Data ingestion, mathematical formula validation, statistical distributions, and hypothesis testing. |
 | **Data Visualization** | **Matplotlib / Seaborn** | Publication-grade statistical plots, formatting engines, and chart interpretations. |
-| **Business Intelligence** | **Microsoft Power BI Desktop** | Star schema relationship architecture, VertiPaq tabular modeling, reusable DAX measure repository. |
-| **ETL & Data Prep** | **Power Query (M)** | Type safety enforcement, conditional column logic, and orphan key mitigation. |
+| **Business Intelligence** | **Microsoft Power BI Desktop** | Star schema relationship architecture, VertiPaq tabular modeling, 23 reusable DAX measures. |
+| **ETL & Data Prep** | **Power Query (M)** | Type safety enforcement, portable data-source configuration, and orphan key mitigation. |
 | **Version Control** | **Git / GitHub** | Reproducible project structure, documentation, and version control. |
 
 ---
@@ -90,7 +91,7 @@ Retail_Stores_Analysis/
 │   └── Schema_Design.png               # High-resolution entity relationship diagram
 │
 ├── powerbi/
-│   ├── DAX_Measures.md                 # Full DAX code repository with validated benchmarks
+│   ├── DAX_Measures.md                 # 23 DAX measures with verified benchmarks
 │   ├── Retail_Stores_Sales_Analysis.pbip  # Power BI Project definition file
 │   ├── Retail_Stores_Sales_Analysis.pbit  # Portable Power BI Template file
 │   ├── Retail_Stores_Sales_Analysis.pbix  # Standalone Power BI Report
@@ -108,7 +109,7 @@ Retail_Stores_Analysis/
 │   └── 04_sales_trends.png
 │
 └── sql/                                # Modular, production-ready SQL scripts
-    ├── 00_database_setup.sql           # Database creation, table DDL, and PK/FK definitions
+    ├── 00_database_setup.sql           # Database creation, staging DDL, and PK/FK definitions
     ├── 01_data_audit.sql               # Data quality, nulls, duplicates, and orphan checks
     ├── 02_product_brand_analysis.sql   # SKU rankings, brand performance, and category CTEs
     ├── 03_customer_analysis.sql        # Age cohort segmentation, gender, and loyalty queries
@@ -123,19 +124,19 @@ Retail_Stores_Analysis/
 A senior-level data analysis project does not overlook data anomalies. Our empirical audit uncovered several critical source-level characteristics:
 
 1. **Orphan Product Identifiers (`P0000` & `P0201`):**
-   - Exactly **9,764 transaction records** (0.98% of total volume) reference product IDs `P0000` (4,932 records) and `P0201` (4,832 records) which do not exist in the 200-row `products` catalog.
-   - *Handling:* Rather than deleting valid sales representing **$238,623.66 in gross revenue**, these records are handled via `COALESCE` / `IF(ISBLANK())` in SQL and Power BI as `Unassigned SKUs`.
-2. **Floating-Point Rounding Variances ($\pm \$0.01$):**
-   - 2,646 records differ from `quantity * unit_price * (1 - discount)` by $\pm \$0.01$.
-   - 27,915 records differ from `revenue - cost` by $\pm \$0.01$.
+   - Exactly **9,764 transaction records** (0.98% of total volume) reference product IDs `P0000` (4,895 records; $124,196.82 revenue) and `P0201` (4,869 records; $123,283.82 revenue) which do not exist in the 200-row `products` catalog.
+   - *Handling:* Rather than deleting valid sales representing **$247,480.64 in gross revenue**, these records are handled via `COALESCE` / `IF(ISBLANK())` in SQL and Power BI as `Unassigned SKUs`. Table DDL omits rigid product foreign keys to preserve full data integrity.
+2. **Exact One-Cent Discrepancies vs. Discrepancies Greater Than One Cent:**
+   - **Revenue:** 8,921 records differ from `quantity * unit_price * (1 - discount)` by **exactly $\pm \$0.01$** (4,579 negative, 4,342 positive). Exactly **0 rows** differ by more than one cent.
+   - **Profit:** 85,479 records differ from `revenue - cost` by **exactly $\pm \$0.01$** (42,248 negative, 43,231 positive). Exactly **0 rows** differ by more than one cent.
    - *Handling:* Sourced from floating-point rounding during synthetic generation; recorded transaction values are preserved as the ground-truth financial ledger.
 3. **Geographic Incoherence (80% Discordance):**
    - 80 out of 100 stores pair cities and countries randomly (e.g., Paris assigned to UK, Berlin to France, Melbourne to Canada).
    - *Handling:* Documented as a synthetic artifact; city and store-type metrics are evaluated independently rather than as a strict geographic hierarchy.
 4. **Synthetic Uniformity:**
-   - Day-of-week sales vary by less than **0.6%** ($34,788 to $34,982 per day).
+   - Day-of-week sales vary by less than **0.6%** ($34,788.94 to $34,982.97 per day).
    - Holiday windows (Christmas, Thanksgiving) display no statistically significant sales surge.
-   - All 6 brands capture nearly identical revenue (~$4.0M to $4.1M each).
+   - All 6 brands capture revenue with consistent ~40.0% margins.
    - *Handling:* Findings are explicitly classified as descriptive characteristics of the dataset, avoiding unsupported causal claims.
 
 *Detailed documentation: [`docs/dataset_audit.md`](docs/dataset_audit.md)*
@@ -144,13 +145,13 @@ A senior-level data analysis project does not overlook data anomalies. Our empir
 
 ## 💡 Key Business Findings & Strategic Recommendations
 
-1. **Assortment Uniformity:** Godiva ($4.13M), Ferrero ($4.10M), Cadbury ($4.10M), and Lindt ($4.10M) perform with near-identical velocity. Top SKUs (P0091 Dark Chocolate 60% and P0107 Truffle 80%) cluster around $131K each.
-2. **Channel Productivity:** While High-Street **Retail** represents 40% of locations, **Airport**, **Mall**, and **Online** channels produce identical store-level productivity (~$245K per store over 2 years).
-3. **Loyalty Program Inefficiency:** Loyalty members and non-members average identical basket sizes ($24.50 vs $24.49) and annual spend ($490.15 vs $489.79), proving the loyalty scheme currently provides zero basket expansion.
+1. **Assortment Uniformity:** Ferrero ($4.69M), Cadbury ($4.67M), Lindt ($4.42M), and Mars ($4.15M) lead catalog revenue with consistent margins. Top SKUs (P0091 Dark Chocolate 60% and P0107 Truffle 80%) cluster around $131K each.
+2. **Channel Productivity:** While Airport (30 stores) and Mall (26 stores) represent the highest store counts, **all four channel formats** produce identical store-level productivity (~$254K to $256K per store over 2 years).
+3. **Loyalty Program Observations:** Recorded loyalty members and non-members average identical basket sizes ($25.45 vs $25.52) and 2-year spend ($508.80 vs $510.65), showing no spending divergence in this dataset.
 4. **Actionable Recommendations:**
-   - *POS Catalog Clean-Up:* Reconcile orphan SKUs `P0000` and `P0201` to prevent accounting leakage.
-   - *Loyalty Restructuring:* Introduce minimum spend hurdles and tier-exclusive seasonal bundles to convert passive members into higher-frequency buyers.
-   - *Channel Optimization:* Prioritize digital and airport channel expansion, which yield identical margins (39.6%) with lower physical overhead.
+   - *POS Catalog Clean-Up:* Reconcile orphan SKUs `P0000` and `P0201` in the master product catalog to eliminate untracked sales ($247K revenue).
+   - *Loyalty Program Restructuring:* Introduce minimum spend hurdles and tier-exclusive seasonal bundles to convert passive members into higher-frequency buyers.
+   - *Channel Optimization:* Capitalize on digital and airport channel expansion, which yield identical margins (40.0%) with lower brick-and-mortar overhead.
 
 *Detailed report: [`docs/insights.md`](docs/insights.md)*
 
@@ -191,7 +192,7 @@ jupyter notebook python/notebooks/01_sales_eda.ipynb
 ```
 
 ### 5. Open Power BI Dashboard
-Open `powerbi/Retail_Stores_Sales_Analysis.pbix` (or `Retail_Stores_Sales_Analysis.pbip`) in Microsoft Power BI Desktop to explore the interactive visual model and DAX measures.
+Open `powerbi/Retail_Stores_Sales_Analysis.pbix` (or `Retail_Stores_Sales_Analysis.pbip`) in Microsoft Power BI Desktop to explore the interactive visual model and 23 DAX measures.
 
 ---
 

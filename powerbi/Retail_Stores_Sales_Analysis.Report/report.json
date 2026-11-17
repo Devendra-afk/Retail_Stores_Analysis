@@ -4,50 +4,234 @@
   "resourcePackages": [],
   "sections": [
     {
+      "name": "ReportSection_ExecutiveOverview",
       "displayName": "Executive Overview",
-      "name": "ReportSection1",
-      "width": 1280.0,
+      "filters": "[]",
       "height": 720.0,
+      "width": 1280.0,
       "visualContainers": [
         {
-          "name": "TitleCard",
-          "config": "{\"title\": \"Retail Stores Sales Analysis \\u2014 Executive Overview\"}"
+          "x": 30.0,
+          "y": 20.0,
+          "width": 200.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_30_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 20, \"z\": 100, \"width\": 200, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"calendar.year\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Year Filter'\"}}}}}]}}}"
+        },
+        {
+          "x": 250.0,
+          "y": 20.0,
+          "width": 240.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_250_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 250, \"y\": 20, \"z\": 100, \"width\": 240, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"stores.store_type\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Store Channel'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 105.0,
+          "width": 220.0,
+          "height": 110.0,
+          "config": "{\"name\": \"Visual_card_30_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 105, \"z\": 100, \"width\": 220, \"height\": 110}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Total Gross Revenue'\"}}}}}]}}}"
+        },
+        {
+          "x": 270.0,
+          "y": 105.0,
+          "width": 220.0,
+          "height": 110.0,
+          "config": "{\"name\": \"Visual_card_270_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 105, \"z\": 100, \"width\": 220, \"height\": 110}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Total Profit\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Total Operating Profit'\"}}}}}]}}}"
+        },
+        {
+          "x": 510.0,
+          "y": 105.0,
+          "width": 220.0,
+          "height": 110.0,
+          "config": "{\"name\": \"Visual_card_510_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 510, \"y\": 105, \"z\": 100, \"width\": 220, \"height\": 110}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Profit Margin %\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Operating Profit Margin'\"}}}}}]}}}"
+        },
+        {
+          "x": 750.0,
+          "y": 105.0,
+          "width": 220.0,
+          "height": 110.0,
+          "config": "{\"name\": \"Visual_card_750_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 750, \"y\": 105, \"z\": 100, \"width\": 220, \"height\": 110}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Total Orders\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Total Order Transactions'\"}}}}}]}}}"
+        },
+        {
+          "x": 990.0,
+          "y": 105.0,
+          "width": 260.0,
+          "height": 110.0,
+          "config": "{\"name\": \"Visual_card_990_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 990, \"y\": 105, \"z\": 100, \"width\": 260, \"height\": 110}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Average Order Value\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Average Order Value (AOV)'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 230.0,
+          "width": 750.0,
+          "height": 260.0,
+          "config": "{\"name\": \"Visual_lineChart_30_230\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 230, \"z\": 100, \"width\": 750, \"height\": 260}}], \"singleVisual\": {\"visualType\": \"lineChart\", \"projections\": {\"Category\": [{\"queryRef\": \"calendar.month\"}], \"Series\": [{\"queryRef\": \"calendar.year\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Monthly Revenue Trajectory (2023 vs 2024)'\"}}}}}]}}}"
+        },
+        {
+          "x": 800.0,
+          "y": 230.0,
+          "width": 450.0,
+          "height": 260.0,
+          "config": "{\"name\": \"Visual_pieChart_800_230\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 800, \"y\": 230, \"z\": 100, \"width\": 450, \"height\": 260}}], \"singleVisual\": {\"visualType\": \"pieChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.category\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Category Revenue Contribution'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 505.0,
+          "width": 600.0,
+          "height": 195.0,
+          "config": "{\"name\": \"Visual_clusteredBarChart_30_505\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 505, \"z\": 100, \"width\": 600, \"height\": 195}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.brand\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Brand Revenue Performance'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 505.0,
+          "width": 600.0,
+          "height": 195.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_650_505\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 505, \"z\": 100, \"width\": 600, \"height\": 195}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"stores.store_type\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Revenue by Store Channel'\"}}}}}]}}}"
         }
       ]
     },
     {
+      "name": "ReportSection_ProductPerformance",
       "displayName": "Product Performance",
-      "name": "ReportSection2",
-      "width": 1280.0,
+      "filters": "[]",
       "height": 720.0,
+      "width": 1280.0,
       "visualContainers": [
         {
-          "name": "TitleCard",
-          "config": "{\"title\": \"Product & Brand Performance Analysis\"}"
+          "x": 30.0,
+          "y": 20.0,
+          "width": 260.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_30_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 20, \"z\": 100, \"width\": 260, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"products.brand\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Filter by Brand'\"}}}}}]}}}"
+        },
+        {
+          "x": 310.0,
+          "y": 20.0,
+          "width": 260.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_310_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 310, \"y\": 20, \"z\": 100, \"width\": 260, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"products.category\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Filter by Category'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_clusteredBarChart_30_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.product_name\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Top 10 SKUs by Gross Revenue'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_650_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.brand\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}, {\"queryRef\": \"_Measures.Total Profit\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Brand Revenue vs Profit Performance'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_30_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.weight_g\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Revenue by Package Weight (g)'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_650_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"products.cocoa_percent\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Revenue by Cocoa Solids Tier (%)'\"}}}}}]}}}"
         }
       ]
     },
     {
+      "name": "ReportSection_CustomerStoreAnalysis",
       "displayName": "Customer and Store Analysis",
-      "name": "ReportSection3",
-      "width": 1280.0,
+      "filters": "[]",
       "height": 720.0,
+      "width": 1280.0,
       "visualContainers": [
         {
-          "name": "TitleCard",
-          "config": "{\"title\": \"Customer Demographics & Store Operations\"}"
+          "x": 30.0,
+          "y": 20.0,
+          "width": 250.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_30_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 20, \"z\": 100, \"width\": 250, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"customers.gender\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Filter Gender'\"}}}}}]}}}"
+        },
+        {
+          "x": 300.0,
+          "y": 20.0,
+          "width": 250.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_300_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 300, \"y\": 20, \"z\": 100, \"width\": 250, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"customers.loyalty_member\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Filter Loyalty Status'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_30_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"customers.age_group\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Revenue by Customer Age Bracket'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_pieChart_650_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"pieChart\", \"projections\": {\"Category\": [{\"queryRef\": \"customers.gender\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Revenue Contribution by Gender'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_30_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"customers.loyalty_member\"}], \"Y\": [{\"queryRef\": \"_Measures.Revenue per Customer\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Loyalty Program Spend per Customer ($)'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_clusteredBarChart_650_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {\"Category\": [{\"queryRef\": \"stores.store_type\"}], \"Y\": [{\"queryRef\": \"_Measures.Revenue per Store\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Average Revenue Productivity per Store Facility ($)'\"}}}}}]}}}"
         }
       ]
     },
     {
-      "displayName": "Sales Trends & Seasonality",
-      "name": "ReportSection4",
-      "width": 1280.0,
+      "name": "ReportSection_SalesTrends",
+      "displayName": "Sales Trends",
+      "filters": "[]",
       "height": 720.0,
+      "width": 1280.0,
       "visualContainers": [
         {
-          "name": "TitleCard",
-          "config": "{\"title\": \"Temporal Trends, YoY Growth & Seasonality\"}"
+          "x": 30.0,
+          "y": 20.0,
+          "width": 260.0,
+          "height": 70.0,
+          "config": "{\"name\": \"Visual_slicer_30_20\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 20, \"z\": 100, \"width\": 260, \"height\": 70}}], \"singleVisual\": {\"visualType\": \"slicer\", \"projections\": {\"Values\": [{\"queryRef\": \"calendar.year\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Year Filter'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_30_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"calendar.day_name\"}], \"Y\": [{\"queryRef\": \"_Measures.Average Daily Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Average Daily Revenue by Day of Week ($)'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 105.0,
+          "width": 600.0,
+          "height": 310.0,
+          "config": "{\"name\": \"Visual_pieChart_650_105\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 105, \"z\": 100, \"width\": 600, \"height\": 310}}], \"singleVisual\": {\"visualType\": \"pieChart\", \"projections\": {\"Category\": [{\"queryRef\": \"calendar.is_weekend\"}], \"Y\": [{\"queryRef\": \"_Measures.Average Daily Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Weekend vs Weekday Daily Revenue'\"}}}}}]}}}"
+        },
+        {
+          "x": 30.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_lineChart_30_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 30, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"lineChart\", \"projections\": {\"Category\": [{\"queryRef\": \"calendar.month\"}], \"Y\": [{\"queryRef\": \"_Measures.2023 Revenue\"}, {\"queryRef\": \"_Measures.2024 Revenue\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Monthly YoY Revenue Comparison (2023 vs 2024)'\"}}}}}]}}}"
+        },
+        {
+          "x": 650.0,
+          "y": 430.0,
+          "width": 600.0,
+          "height": 270.0,
+          "config": "{\"name\": \"Visual_clusteredColumnChart_650_430\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 650, \"y\": 430, \"z\": 100, \"width\": 600, \"height\": 270}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"calendar.year\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Profit\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}, \"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Annual Portfolio Operating Profit ($M)'\"}}}}}]}}}"
         }
       ]
     }

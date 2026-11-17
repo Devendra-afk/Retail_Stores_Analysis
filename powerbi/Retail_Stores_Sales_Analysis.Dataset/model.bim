@@ -82,10 +82,14 @@
             "source": {
               "type": "m",
               "expression": [
-                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/sales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
-                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"order_id\", type text}, {\"order_date\", type date}, {\"product_id\", type text}, {\"store_id\", type text}, {\"customer_id\", type text}, {\"quantity\", Int64.Type}, {\"unit_price\", type number}, {\"discount\", type number}, {\"revenue\", type number}, {\"cost\", type number}, {\"profit\", type number}})",
-                "in #\"Changed Type\""
+                "let",
+                "    Source = try Csv.Document(File.Contents(\"data/raw/sales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise try Csv.Document(File.Contents(\"../../data/raw/sales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise Csv.Document(File.Contents(\"D:/Study/DA_Projects/Data/sales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"order_id\", type text}, {\"order_date\", type date}, {\"product_id\", type text}, {\"store_id\", type text}, {\"customer_id\", type text}, {\"quantity\", Int64.Type}, {\"unit_price\", type number}, {\"discount\", type number}, {\"revenue\", type number}, {\"cost\", type number}, {\"profit\", type number}})",
+                "in",
+                "    #\"Changed Type\""
               ]
             }
           }
@@ -132,10 +136,14 @@
             "source": {
               "type": "m",
               "expression": [
-                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/products.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
-                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"product_id\", type text}, {\"product_name\", type text}, {\"brand\", type text}, {\"category\", type text}, {\"cocoa_percent\", Int64.Type}, {\"weight_g\", Int64.Type}})",
-                "in #\"Changed Type\""
+                "let",
+                "    Source = try Csv.Document(File.Contents(\"data/raw/products.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise try Csv.Document(File.Contents(\"../../data/raw/products.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise Csv.Document(File.Contents(\"D:/Study/DA_Projects/Data/products.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"product_id\", type text}, {\"product_name\", type text}, {\"brand\", type text}, {\"category\", type text}, {\"cocoa_percent\", Int64.Type}, {\"weight_g\", Int64.Type}})",
+                "in",
+                "    #\"Changed Type\""
               ]
             }
           }
@@ -169,6 +177,11 @@
             "dataType": "dateTime",
             "sourceColumn": "join_date",
             "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "age_group",
+            "dataType": "string",
+            "sourceColumn": "age_group"
           }
         ],
         "partitions": [
@@ -178,10 +191,15 @@
             "source": {
               "type": "m",
               "expression": [
-                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/customers.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
-                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"customer_id\", type text}, {\"age\", Int64.Type}, {\"gender\", type text}, {\"loyalty_member\", Int64.Type}, {\"join_date\", type date}})",
-                "in #\"Changed Type\""
+                "let",
+                "    Source = try Csv.Document(File.Contents(\"data/raw/customers.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise try Csv.Document(File.Contents(\"../../data/raw/customers.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise Csv.Document(File.Contents(\"D:/Study/DA_Projects/Data/customers.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"customer_id\", type text}, {\"age\", Int64.Type}, {\"gender\", type text}, {\"loyalty_member\", Int64.Type}, {\"join_date\", type date}}),",
+                "    #\"Added Age Group\" = Table.AddColumn(#\"Changed Type\", \"age_group\", each if [age] <= 25 then \"18-25\" else if [age] <= 35 then \"26-35\" else if [age] <= 45 then \"36-45\" else if [age] <= 55 then \"46-55\" else \"56-70\", type text)",
+                "in",
+                "    #\"Added Age Group\""
               ]
             }
           }
@@ -223,10 +241,14 @@
             "source": {
               "type": "m",
               "expression": [
-                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/stores.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
-                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"store_id\", type text}, {\"store_name\", type text}, {\"city\", type text}, {\"country\", type text}, {\"store_type\", type text}})",
-                "in #\"Changed Type\""
+                "let",
+                "    Source = try Csv.Document(File.Contents(\"data/raw/stores.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise try Csv.Document(File.Contents(\"../../data/raw/stores.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise Csv.Document(File.Contents(\"D:/Study/DA_Projects/Data/stores.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"store_id\", type text}, {\"store_name\", type text}, {\"city\", type text}, {\"country\", type text}, {\"store_type\", type text}})",
+                "in",
+                "    #\"Changed Type\""
               ]
             }
           }
@@ -265,6 +287,16 @@
             "name": "day_of_week",
             "dataType": "int64",
             "sourceColumn": "day_of_week"
+          },
+          {
+            "name": "day_name",
+            "dataType": "string",
+            "sourceColumn": "day_name"
+          },
+          {
+            "name": "is_weekend",
+            "dataType": "string",
+            "sourceColumn": "is_weekend"
           }
         ],
         "partitions": [
@@ -274,10 +306,16 @@
             "source": {
               "type": "m",
               "expression": [
-                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/calendar.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
-                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"date\", type date}, {\"year\", Int64.Type}, {\"month\", Int64.Type}, {\"day\", Int64.Type}, {\"week\", Int64.Type}, {\"day_of_week\", Int64.Type}})",
-                "in #\"Changed Type\""
+                "let",
+                "    Source = try Csv.Document(File.Contents(\"data/raw/calendar.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise try Csv.Document(File.Contents(\"../../data/raw/calendar.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None])",
+                "             otherwise Csv.Document(File.Contents(\"D:/Study/DA_Projects/Data/calendar.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"date\", type date}, {\"year\", Int64.Type}, {\"month\", Int64.Type}, {\"day\", Int64.Type}, {\"week\", Int64.Type}, {\"day_of_week\", Int64.Type}}),",
+                "    #\"Added Day Name\" = Table.AddColumn(#\"Changed Type\", \"day_name\", each if [day_of_week] = 0 then \"Monday\" else if [day_of_week] = 1 then \"Tuesday\" else if [day_of_week] = 2 then \"Wednesday\" else if [day_of_week] = 3 then \"Thursday\" else if [day_of_week] = 4 then \"Friday\" else if [day_of_week] = 5 then \"Saturday\" else \"Sunday\", type text),",
+                "    #\"Added Is Weekend\" = Table.AddColumn(#\"Added Day Name\", \"is_weekend\", each if [day_of_week] >= 5 then \"Weekend\" else \"Weekday\", type text)",
+                "in",
+                "    #\"Added Is Weekend\""
               ]
             }
           }
@@ -290,74 +328,148 @@
             "name": "Measure_ID",
             "dataType": "int64",
             "isCalculated": true,
-            "expression": "1"
+            "expression": "1",
+            "isHidden": true
           }
         ],
         "measures": [
           {
             "name": "Total Revenue",
             "expression": "SUM(sales[revenue])",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Sum of transaction revenue after discount ($25,486,128.86)"
           },
           {
             "name": "Total Cost",
             "expression": "SUM(sales[cost])",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Total Cost of Goods Sold ($15,291,554.40)"
           },
           {
             "name": "Total Profit",
             "expression": "SUM(sales[profit])",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Net Operating Profit ($10,194,564.63)"
           },
           {
             "name": "Total Quantity",
             "expression": "SUM(sales[quantity])",
-            "formatString": "#,##0"
+            "formatString": "#,##0",
+            "description": "Total units sold (2,999,589 units)"
           },
           {
             "name": "Total Orders",
             "expression": "DISTINCTCOUNT(sales[order_id])",
-            "formatString": "#,##0"
+            "formatString": "#,##0",
+            "description": "Total order transactions (1,000,000 orders)"
           },
           {
             "name": "Profit Margin %",
             "expression": "DIVIDE([Total Profit], [Total Revenue], 0)",
-            "formatString": "0.00%"
+            "formatString": "0.00%",
+            "description": "Operating Profit Margin (40.00%)"
           },
           {
             "name": "Average Order Value",
             "expression": "DIVIDE([Total Revenue], [Total Orders], 0)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Average basket value per order ($25.49)"
           },
           {
             "name": "Average Selling Price",
             "expression": "DIVIDE([Total Revenue], [Total Quantity], 0)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Net realized price per unit ($8.50)"
+          },
+          {
+            "name": "Average Discount %",
+            "expression": "AVERAGE(sales[discount])",
+            "formatString": "0.00%",
+            "description": "Mean discount rate applied (5.62%)"
           },
           {
             "name": "2023 Revenue",
             "expression": "CALCULATE([Total Revenue], calendar[year] = 2023)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Total revenue in 2023 ($12,735,106.27)"
           },
           {
             "name": "2024 Revenue",
             "expression": "CALCULATE([Total Revenue], calendar[year] = 2024)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Total revenue in 2024 ($12,751,022.59)"
           },
           {
-            "name": "YoY Revenue Growth",
-            "expression": "DIVIDE([2024 Revenue] - [2023 Revenue], [2023 Revenue], 0)",
-            "formatString": "+0.00%;-0.00%"
+            "name": "YoY Revenue Growth $",
+            "expression": "[2024 Revenue] - [2023 Revenue]",
+            "formatString": "+\\$#,##0.00;-\\$#,##0.00;\\$0.00",
+            "description": "YoY revenue growth in dollars (+$15,916.32)"
+          },
+          {
+            "name": "YoY Revenue Growth %",
+            "expression": "DIVIDE([YoY Revenue Growth $], [2023 Revenue], 0)",
+            "formatString": "+0.00%;-0.00%;0.00%",
+            "description": "YoY percentage growth (+0.12%)"
+          },
+          {
+            "name": "2023 Profit",
+            "expression": "CALCULATE([Total Profit], calendar[year] = 2023)",
+            "formatString": "\\$#,##0.00",
+            "description": "Total profit in 2023 ($5,093,596.88)"
+          },
+          {
+            "name": "2024 Profit",
+            "expression": "CALCULATE([Total Profit], calendar[year] = 2024)",
+            "formatString": "\\$#,##0.00",
+            "description": "Total profit in 2024 ($5,100,967.75)"
           },
           {
             "name": "Revenue per Store",
             "expression": "DIVIDE([Total Revenue], DISTINCTCOUNT(stores[store_id]), 0)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Average revenue generated per store facility ($254,861.29)"
+          },
+          {
+            "name": "Profit per Store",
+            "expression": "DIVIDE([Total Profit], DISTINCTCOUNT(stores[store_id]), 0)",
+            "formatString": "\\$#,##0.00",
+            "description": "Average profit generated per store facility ($101,945.65)"
           },
           {
             "name": "Revenue per Customer",
             "expression": "DIVIDE([Total Revenue], DISTINCTCOUNT(customers[customer_id]), 0)",
-            "formatString": "\\$#,##0.00"
+            "formatString": "\\$#,##0.00",
+            "description": "Average 2-year spend per registered customer ($509.72)"
+          },
+          {
+            "name": "Orders per Customer",
+            "expression": "DIVIDE([Total Orders], DISTINCTCOUNT(customers[customer_id]), 0)",
+            "formatString": "#,##0.00",
+            "description": "Average purchase frequency per customer (20.00 orders)"
+          },
+          {
+            "name": "Average Daily Revenue",
+            "expression": "DIVIDE([Total Revenue], DISTINCTCOUNT(sales[order_date]), 0)",
+            "formatString": "\\$#,##0.00",
+            "description": "Mean revenue per calendar day across 731 days ($34,864.75)"
+          },
+          {
+            "name": "Average Daily Orders",
+            "expression": "DIVIDE([Total Orders], DISTINCTCOUNT(sales[order_date]), 0)",
+            "formatString": "#,##0.0",
+            "description": "Mean order count per calendar day (1,368.0 orders/day)"
+          },
+          {
+            "name": "Orphan Product Revenue",
+            "expression": "CALCULATE([Total Revenue], sales[product_id] IN { \"P0000\", \"P0201\" })",
+            "formatString": "\\$#,##0.00",
+            "description": "Revenue from orphan keys P0000 and P0201 ($247,480.64)"
+          },
+          {
+            "name": "Catalog Product Revenue",
+            "expression": "CALCULATE([Total Revenue], NOT(sales[product_id] IN { \"P0000\", \"P0201\" }))",
+            "formatString": "\\$#,##0.00",
+            "description": "Revenue from valid catalog products P0001-P0200 ($25,238,648.22)"
           }
         ]
       }
