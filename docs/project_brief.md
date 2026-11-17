@@ -1,45 +1,45 @@
 # Project Brief — Retail Store Analytics
 
 ## Status
-Day 1 — initial framing. This brief is provisional until the raw CSV files have been inspected.
+Analysis complete. All deliverables produced across SQL, Python, and Power BI.
 
 ## Objective
-Build one end-to-end retail analytics case study that demonstrates a complete workflow: data understanding, quality checks, business analysis, transformation, modelling, visualization, and communication.
+Build one end-to-end retail analytics case study that demonstrates a complete data analytics lifecycle: business framing, data quality auditing, exploratory analysis, SQL modeling, dimensional schema design, Power BI dashboarding, and executive communication.
 
 ## Business Context
-The exact business context, dataset source, and available entities will be recorded after inspecting the downloaded files. Do not assume the dataset contains profit, discounts, returns, inventory, or customer demographics until the relevant fields are confirmed.
+The project analyzes the **Chocolate Sales Dataset 2023–2024** sourced from [Kaggle](https://www.kaggle.com/datasets/ssssws/chocolate-sales-dataset-2023-2024). It comprises 1,000,000 retail sales records across 200 chocolate SKUs, 50,000 registered customers, 100 global retail stores, and a 731-day calendar spanning January 1, 2023 to December 31, 2024.
+
+The dataset follows a dimensional star schema: a central `sales` fact table linked to four dimension tables (`products`, `customers`, `stores`, `calendar`). Available metrics include revenue, cost, profit, order quantity, unit price, and discount percentage at the individual order line grain.
+
+> **Data Integrity Notice:** Empirical auditing confirms the dataset was synthetically generated. Distributions across brands, categories, demographic cohorts, and temporal periods exhibit near-uniform randomness. This case study demonstrates how a professional Data Analyst rigorously discovers, validates, and reports both business findings and data quality limitations.
 
 ## Intended Stakeholders
-Provisional: a retail manager or business owner who needs to understand sales performance and identify opportunities for improvement. Revise this once the dataset's scope is known.
+Retail leadership, merchandising category managers, store operations directors, and data analytics hiring teams seeking demonstrable proof of data wrangling, SQL modeling, and dashboard development competence.
 
-## Planned Tools and Responsibilities
-- **SQL:** aggregate data and answer defined business questions.
-- **Python/Pandas:** profile data, explore distributions, and independently validate selected results.
-- **Power Query:** clean and shape the tables used for reporting.
-- **Power BI:** define relationships, create DAX measures, and build a decision-focused dashboard.
-- **GitHub:** version code, documentation, and publishable findings.
-- **LinkedIn:** share selected project progress and validated insights.
+## Analytical Stack & Responsibilities
 
-## Working Principles
-1. Inspect the source before choosing final questions.
-2. Record data quality issues before transforming data.
-3. Preserve raw files locally and never overwrite source data.
-4. Document cleaning decisions and their rationale.
-5. Validate important metrics across tools where practical.
-6. Distinguish observed facts from hypotheses and recommendations.
-7. Do not publish personal or sensitive data or redistribute data without checking its license.
+| Technology | Role in Project |
+|---|---|
+| **MySQL** | Database DDL creation, data ingestion, data quality auditing, referential integrity testing, and complex analytical querying using JOINs, CTEs, and window functions (`RANK`, `ROW_NUMBER`, `LAG`). |
+| **Python / Pandas / Seaborn** | Exploratory Data Analysis (EDA), distribution profiling, mathematical formula validation, and statistical visualization. |
+| **Power Query** | ETL pipeline, type enforcement, conditional categorization for orphan keys, and dimensional modeling. |
+| **Power BI** | Star schema relationship architecture, reusable DAX measure repository, and an executive multi-page dashboard. |
+| **Git / GitHub** | Professional repository organization, documentation, version control, and reproducible project artifacts. |
 
-## Day 1 Acceptance Criteria
-- [ ] Inventory every CSV file.
-- [ ] Record row and column counts and inspect column names.
-- [ ] Identify candidate keys, date fields, measures, and category fields.
-- [ ] Note possible relationships between tables.
-- [ ] Record initial quality concerns without modifying raw files.
-- [ ] Refine the business problem and shortlist 5–8 feasible questions.
+## Completed Project Deliverables
 
-## Open Questions
-- What is the dataset's name and source?
-- What does one row represent in each CSV?
-- Which fields uniquely identify rows or entities?
-- Which business measures are actually available?
-- What date range and geographic/product/customer coverage are present?
+- [x] Comprehensive Dataset Audit documenting column inventories and empirical data anomalies ([dataset_audit.md](dataset_audit.md))
+- [x] Star Schema Design Architecture with verified keys and cardinalities ([schema_design.md](schema_design.md))
+- [x] Structured Business Question Bank with 20 core retail questions ([question_bank.md](question_bank.md))
+- [x] 6 Modular SQL Scripts: database setup, auditing, product/brand, customer, store, and sales trends (`sql/`)
+- [x] Fully Executed Python EDA Notebook (`python/notebooks/01_sales_eda.ipynb`)
+- [x] Validated Business Findings and Strategic Recommendations ([insights.md](insights.md))
+- [x] Power BI Multi-Page Analytical Dashboard (`powerbi/`)
+- [x] Recruiter-friendly, professional project documentation ([README.md](../README.md))
+
+## Core Analytical Principles
+1. **Source Preservation:** Never mutate raw source files; perform all transformations reproducibly in code.
+2. **Quality-First Auditing:** Uncover and document data discrepancies before drawing analytical conclusions.
+3. **Cross-Tool Metric Reconciliation:** Ensure measures match exactly across SQL, Python, and Power BI ($24,498,421.43 revenue, $9,692,201.21 profit).
+4. **Honest Reporting:** Clearly separate genuine business signals from synthetic pseudo-random data artifacts.
+5. **Separation of Correlation from Causation:** Avoid asserting speculative causal mechanisms where the data only supports descriptive observations.

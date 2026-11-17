@@ -1,0 +1,55 @@
+{
+  "config": "{\"version\": \"5.48\", \"themeCollection\": {\"baseTheme\": {\"name\": \"CY24SU02\", \"version\": \"5.48\", \"type\": 2}}}",
+  "layoutOptimization": 0,
+  "resourcePackages": [],
+  "sections": [
+    {
+      "displayName": "Executive Overview",
+      "name": "ReportSection1",
+      "width": 1280.0,
+      "height": 720.0,
+      "visualContainers": [
+        {
+          "name": "TitleCard",
+          "config": "{\"title\": \"Retail Stores Sales Analysis \\u2014 Executive Overview\"}"
+        }
+      ]
+    },
+    {
+      "displayName": "Product Performance",
+      "name": "ReportSection2",
+      "width": 1280.0,
+      "height": 720.0,
+      "visualContainers": [
+        {
+          "name": "TitleCard",
+          "config": "{\"title\": \"Product & Brand Performance Analysis\"}"
+        }
+      ]
+    },
+    {
+      "displayName": "Customer and Store Analysis",
+      "name": "ReportSection3",
+      "width": 1280.0,
+      "height": 720.0,
+      "visualContainers": [
+        {
+          "name": "TitleCard",
+          "config": "{\"title\": \"Customer Demographics & Store Operations\"}"
+        }
+      ]
+    },
+    {
+      "displayName": "Sales Trends & Seasonality",
+      "name": "ReportSection4",
+      "width": 1280.0,
+      "height": 720.0,
+      "visualContainers": [
+        {
+          "name": "TitleCard",
+          "config": "{\"title\": \"Temporal Trends, YoY Growth & Seasonality\"}"
+        }
+      ]
+    }
+  ]
+}

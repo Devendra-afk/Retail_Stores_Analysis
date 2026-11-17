@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "artifacts": [
+    {
+      "report": {
+        "path": "Retail_Stores_Sales_Analysis.Report"
+      }
+    }
+  ],
+  "settings": {
+    "enableAutoAuth": true
+  }
+}

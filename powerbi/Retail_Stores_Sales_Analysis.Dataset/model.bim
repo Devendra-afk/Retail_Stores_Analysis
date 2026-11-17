@@ -1,0 +1,396 @@
+{
+  "name": "Retail_Stores_Sales_Analysis",
+  "compatibilityLevel": 1567,
+  "model": {
+    "culture": "en-US",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "sourceQueryCulture": "en-US",
+    "tables": [
+      {
+        "name": "sales",
+        "columns": [
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id"
+          },
+          {
+            "name": "order_date",
+            "dataType": "dateTime",
+            "sourceColumn": "order_date",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "product_id",
+            "dataType": "string",
+            "sourceColumn": "product_id"
+          },
+          {
+            "name": "store_id",
+            "dataType": "string",
+            "sourceColumn": "store_id"
+          },
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id"
+          },
+          {
+            "name": "quantity",
+            "dataType": "int64",
+            "sourceColumn": "quantity"
+          },
+          {
+            "name": "unit_price",
+            "dataType": "double",
+            "sourceColumn": "unit_price",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "discount",
+            "dataType": "double",
+            "sourceColumn": "discount",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "revenue",
+            "dataType": "double",
+            "sourceColumn": "revenue",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "cost",
+            "dataType": "double",
+            "sourceColumn": "cost",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "profit",
+            "dataType": "double",
+            "sourceColumn": "profit",
+            "formatString": "\\$#,##0.00"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "sales-Partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/sales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"order_id\", type text}, {\"order_date\", type date}, {\"product_id\", type text}, {\"store_id\", type text}, {\"customer_id\", type text}, {\"quantity\", Int64.Type}, {\"unit_price\", type number}, {\"discount\", type number}, {\"revenue\", type number}, {\"cost\", type number}, {\"profit\", type number}})",
+                "in #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "products",
+        "columns": [
+          {
+            "name": "product_id",
+            "dataType": "string",
+            "sourceColumn": "product_id"
+          },
+          {
+            "name": "product_name",
+            "dataType": "string",
+            "sourceColumn": "product_name"
+          },
+          {
+            "name": "brand",
+            "dataType": "string",
+            "sourceColumn": "brand"
+          },
+          {
+            "name": "category",
+            "dataType": "string",
+            "sourceColumn": "category"
+          },
+          {
+            "name": "cocoa_percent",
+            "dataType": "int64",
+            "sourceColumn": "cocoa_percent"
+          },
+          {
+            "name": "weight_g",
+            "dataType": "int64",
+            "sourceColumn": "weight_g"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "products-Partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/products.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"product_id\", type text}, {\"product_name\", type text}, {\"brand\", type text}, {\"category\", type text}, {\"cocoa_percent\", Int64.Type}, {\"weight_g\", Int64.Type}})",
+                "in #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "customers",
+        "columns": [
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id"
+          },
+          {
+            "name": "age",
+            "dataType": "int64",
+            "sourceColumn": "age"
+          },
+          {
+            "name": "gender",
+            "dataType": "string",
+            "sourceColumn": "gender"
+          },
+          {
+            "name": "loyalty_member",
+            "dataType": "int64",
+            "sourceColumn": "loyalty_member"
+          },
+          {
+            "name": "join_date",
+            "dataType": "dateTime",
+            "sourceColumn": "join_date",
+            "formatString": "yyyy-mm-dd"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "customers-Partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/customers.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"customer_id\", type text}, {\"age\", Int64.Type}, {\"gender\", type text}, {\"loyalty_member\", Int64.Type}, {\"join_date\", type date}})",
+                "in #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "stores",
+        "columns": [
+          {
+            "name": "store_id",
+            "dataType": "string",
+            "sourceColumn": "store_id"
+          },
+          {
+            "name": "store_name",
+            "dataType": "string",
+            "sourceColumn": "store_name"
+          },
+          {
+            "name": "city",
+            "dataType": "string",
+            "sourceColumn": "city"
+          },
+          {
+            "name": "country",
+            "dataType": "string",
+            "sourceColumn": "country"
+          },
+          {
+            "name": "store_type",
+            "dataType": "string",
+            "sourceColumn": "store_type"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "stores-Partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/stores.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"store_id\", type text}, {\"store_name\", type text}, {\"city\", type text}, {\"country\", type text}, {\"store_type\", type text}})",
+                "in #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "calendar",
+        "columns": [
+          {
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year"
+          },
+          {
+            "name": "month",
+            "dataType": "int64",
+            "sourceColumn": "month"
+          },
+          {
+            "name": "day",
+            "dataType": "int64",
+            "sourceColumn": "day"
+          },
+          {
+            "name": "week",
+            "dataType": "int64",
+            "sourceColumn": "week"
+          },
+          {
+            "name": "day_of_week",
+            "dataType": "int64",
+            "sourceColumn": "day_of_week"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "calendar-Partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let Source = Csv.Document(File.Contents(\"C:/Users/Devendra/.gemini/antigravity/scratch/Retail_Stores_Analysis/data/raw/calendar.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "#\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "#\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"date\", type date}, {\"year\", Int64.Type}, {\"month\", Int64.Type}, {\"day\", Int64.Type}, {\"week\", Int64.Type}, {\"day_of_week\", Int64.Type}})",
+                "in #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "_Measures",
+        "columns": [
+          {
+            "name": "Measure_ID",
+            "dataType": "int64",
+            "isCalculated": true,
+            "expression": "1"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Revenue",
+            "expression": "SUM(sales[revenue])",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(sales[cost])",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "Total Profit",
+            "expression": "SUM(sales[profit])",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "Total Quantity",
+            "expression": "SUM(sales[quantity])",
+            "formatString": "#,##0"
+          },
+          {
+            "name": "Total Orders",
+            "expression": "DISTINCTCOUNT(sales[order_id])",
+            "formatString": "#,##0"
+          },
+          {
+            "name": "Profit Margin %",
+            "expression": "DIVIDE([Total Profit], [Total Revenue], 0)",
+            "formatString": "0.00%"
+          },
+          {
+            "name": "Average Order Value",
+            "expression": "DIVIDE([Total Revenue], [Total Orders], 0)",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "Average Selling Price",
+            "expression": "DIVIDE([Total Revenue], [Total Quantity], 0)",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "2023 Revenue",
+            "expression": "CALCULATE([Total Revenue], calendar[year] = 2023)",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "2024 Revenue",
+            "expression": "CALCULATE([Total Revenue], calendar[year] = 2024)",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "YoY Revenue Growth",
+            "expression": "DIVIDE([2024 Revenue] - [2023 Revenue], [2023 Revenue], 0)",
+            "formatString": "+0.00%;-0.00%"
+          },
+          {
+            "name": "Revenue per Store",
+            "expression": "DIVIDE([Total Revenue], DISTINCTCOUNT(stores[store_id]), 0)",
+            "formatString": "\\$#,##0.00"
+          },
+          {
+            "name": "Revenue per Customer",
+            "expression": "DIVIDE([Total Revenue], DISTINCTCOUNT(customers[customer_id]), 0)",
+            "formatString": "\\$#,##0.00"
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "sales_product_FK",
+        "fromTable": "sales",
+        "fromColumn": "product_id",
+        "toTable": "products",
+        "toColumn": "product_id"
+      },
+      {
+        "name": "sales_customer_FK",
+        "fromTable": "sales",
+        "fromColumn": "customer_id",
+        "toTable": "customers",
+        "toColumn": "customer_id"
+      },
+      {
+        "name": "sales_store_FK",
+        "fromTable": "sales",
+        "fromColumn": "store_id",
+        "toTable": "stores",
+        "toColumn": "store_id"
+      },
+      {
+        "name": "sales_calendar_FK",
+        "fromTable": "sales",
+        "fromColumn": "order_date",
+        "toTable": "calendar",
+        "toColumn": "date"
+      }
+    ]
+  }
+}

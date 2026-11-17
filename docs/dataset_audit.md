@@ -1,139 +1,145 @@
 # Dataset Audit — Retail Store Analytics
 
-> **Status:** Initial inspection completed; detailed validation and reconciliation checks are pending.  
-> **Purpose:** Document the dataset structure, assess data quality, identify table relationships, and establish suitable business questions before analysis.  
-> **Audit principle:** Record observed facts separately from assumptions.
+> **Status:** Completed & Validated  
+> **Purpose:** Document dataset structure, schema grain, data quality auditing findings, entity relationships, and source-level limitations prior to reporting.  
+> **Audit Principle:** Record verified empirical observations separately from business assumptions.
+
+---
 
 ## 1. Dataset Overview
 
-- **Dataset name:** Retail_store_Data
+- **Dataset Name:** Retail Store Sales Dataset (2023–2024)
 - **Source:** [Chocolate Sales Dataset 2023–2024 — Kaggle](https://www.kaggle.com/datasets/ssssws/chocolate-sales-dataset-2023-2024)
-- **License or usage terms:** Not yet verified; check the Kaggle dataset page before redistributing the data.
-- **Number of CSV files:** 5
-- **Reported date range:** 2023–2024
-- **Data sensitivity:** Appears to be ordinary retail analytics data. Confirm whether customer attributes contain personal or otherwise sensitive information before sharing.
-- **Data format:** CSV
-- **Data model:** A sales fact table supported by calendar, customer, product, and store tables.
-- **Primary analytical tools:** SQL, Excel/Power Query, and Power BI.
+- **Dataset Nature:** Synthetically generated retail transaction database
+- **Reporting Period:** January 1, 2023 – December 31, 2024 (731 days, including leap year 2024)
+- **File Format:** CSV (Comma-Separated Values, UTF-8)
+- **Data Model:** Dimensional Star Schema with 1 Central Fact Table (`sales`) and 4 Dimension Tables (`calendar`, `customers`, `products`, `stores`)
+- **Total Portfolio Volume:** 1,000,000 transaction records totaling $24,498,421.43 in gross revenue and $9,692,201.21 in gross operating profit.
 
-## 2. Table Inventory
+---
 
-### 2.1 `calendar.csv`
+## 2. Table Inventory & Grain Assessment
 
-- **Reported row count:** 731
-- **Column count:** 6
-- **Grain:** One row per calendar date, with associated year, month, day, week, and day-of-week attributes.
-- **Candidate primary key:** `date`
-- **Date fields:** `date`
-- **Date range:** Reported as 2023–2024; exact minimum and maximum dates to be verified.
-- **Numeric / date attributes:** `year`, `month`, `day`, `week`, `day_of_week`, `date`
-- **Category / descriptive fields:** None reported.
-- **Missing values:** None reported; validation pending.
-- **Duplicate rows or candidate keys:** None reported; uniqueness check pending.
-- **Invalid values / inconsistencies:** None reported; validation pending.
-- **Other observations:** The reported row count of 731 is consistent with a complete daily calendar covering both 2023 and leap year 2024, provided the date range is January 1, 2023, through December 31, 2024.
+### 2.1 `calendar.csv` (Date Dimension)
+- **Row Count:** 731
+- **Column Count:** 6
+- **Grain:** Exactly one record per calendar date from 2023-01-01 through 2024-12-31.
+- **Primary Key:** `date` (Verified 100% unique, zero duplicates).
+- **Date Attributes:** `date` (YYYY-MM-DD), `year` (2023, 2024), `month` (1–12), `day` (1–31), `week` (1–53), `day_of_week` (0=Monday to 6=Sunday).
+- **Null Values:** 0 nulls across all fields.
+- **Audit Findings:** Full temporal coverage across the 2-year analysis window with zero missing dates.
 
-### 2.2 `customers.csv`
+### 2.2 `customers.csv` (Customer Dimension)
+- **Row Count:** 50,000
+- **Column Count:** 5
+- **Grain:** Exactly one record per registered customer profile.
+- **Primary Key:** `customer_id` (`C000001` through `C050000`, 100% unique, zero duplicates).
+- **Attributes:**
+  - `customer_id` (VARCHAR(10)): Unique customer identifier.
+  - `age` (INT): Customer age, bounded between 18 and 70 (Mean: 44.02).
+  - `gender` (VARCHAR(10)): Binary classification — Female (25,057; 50.11%) and Male (24,943; 49.89%).
+  - `loyalty_member` (INT/BOOLEAN): Membership flag — Non-Member (0: 25,078; 50.16%) and Member (1: 24,922; 49.84%).
+  - `join_date` (DATE): Account creation date spanning 2020-01-01 through 2025-12-31.
+- **Null Values:** 0 nulls across all fields.
+- **Audit Findings:** Demographics show uniform random distributions across age, gender, and loyalty status.
 
-- **Reported row count:** More than 999; exact count pending.
-- **Column count:** 5
-- **Grain:** One row per customer, assuming `Customer_Id` uniquely identifies each customer.
-- **Candidate primary key:** `Customer_Id`
-- **Date fields:** `join_date`
-- **Numeric measures / attributes:** `age`
-- **Boolean / binary attribute:** `loyalty_member` (reported values: T/F).
-- **Category / descriptive fields:** Remaining fields to be documented after confirming the column names.
-- **Missing values:** None reported; validation pending.
-- **Duplicate rows or candidate keys:** None reported; uniqueness check pending.
-- **Invalid values / inconsistencies:** None reported; validate age ranges and the allowed loyalty-member values.
-- **Other observations:** Approximately 5,000 distinct customer IDs have been reported. Reconcile this figure with the actual row count and determine whether the figure refers to the complete source dataset or a separate distinct-ID count.
+### 2.3 `products.csv` (Product Dimension)
+- **Row Count:** 200
+- **Column Count:** 6
+- **Grain:** Exactly one record per catalog SKU.
+- **Primary Key:** `product_id` (`P0001` through `P0200`, 100% unique, zero duplicates).
+- **Attributes:**
+  - `product_id` (VARCHAR(10)): Primary SKU identifier.
+  - `product_name` (VARCHAR(100)): Descriptive product label (e.g., "White Chocolate 80%").
+  - `brand` (VARCHAR(50)): 6 unique chocolate manufacturers — Cadbury (35), Ferrero (34), Godiva (35), Hershey (33), Lindt (33), Mars (30).
+  - `category` (VARCHAR(50)): 4 confection categories — Bar (53), Bites (46), Praline (49), Truffle (52).
+  - `cocoa_percent` (INT): Discrete percentage tiers — 50%, 60%, 70%, 80%.
+  - `weight_g` (INT): Package sizes — 80g (37), 100g (44), 120g (40), 150g (39), 200g (40).
+- **Null Values:** 0 nulls across all fields.
 
-### 2.3 `products.csv`
+### 2.4 `stores.csv` (Store Dimension)
+- **Row Count:** 100
+- **Column Count:** 5
+- **Grain:** Exactly one record per retail facility.
+- **Primary Key:** `store_id` (`S001` through `S100`, 100% unique, zero duplicates).
+- **Attributes:**
+  - `store_id` (VARCHAR(10)): Store identifier.
+  - `store_name` (VARCHAR(100)): Facility name ("Chocolate Store 1" to "Chocolate Store 100").
+  - `city` (VARCHAR(50)): 7 distinct metropolitan areas (Berlin, London, Melbourne, New York, Paris, Sydney, Toronto).
+  - `country` (VARCHAR(50)): 6 distinct sovereign nations (Australia, Canada, France, Germany, UK, USA).
+  - `store_type` (VARCHAR(30)): 4 operating formats — Retail (40), Mall (25), Online (20), Airport (15).
+- **Null Values:** 0 nulls across all fields.
 
-- **Reported row count:** Approximately 200
-- **Column count:** 6
-- **Grain:** One row per product, assuming `product_id` uniquely identifies each product.
-- **Candidate primary key:** `product_id`
-- **Date fields:** None reported.
-- **Numeric attributes:** `cocoa_percent`, `weight_g`
-- **Category / descriptive fields:** Chocolate category and brand; confirm the exact column names.
-- **Missing values:** None reported; validation pending.
-- **Duplicate rows or candidate keys:** None reported; uniqueness check pending.
-- **Invalid values / inconsistencies:** None reported; validate cocoa percentage, weight, category labels, and brand names.
-- **Other observations:** Six distinct brands have been reported. The exact count and distinct brand values should be verified.
+### 2.5 `sales.csv` (Fact Table)
+- **Row Count:** 1,000,000
+- **Column Count:** 11
+- **Grain:** Individual sales transaction line item.
+- **Primary Key:** `order_id` (`0RD00000001` through `0RD01000000`, 100% unique, zero duplicates).
+- **Foreign Keys:**
+  - `product_id` -> `products.product_id`
+  - `customer_id` -> `customers.customer_id`
+  - `store_id` -> `stores.store_id`
+  - `order_date` -> `calendar.date`
+- **Measures:**
+  - `quantity`: Order units (1 to 5 units; Mean: 3.00; Total: 2,999,021 units).
+  - `unit_price`: Item list price ($10.00 to $20.00; Mean: $14.99).
+  - `discount`: Discount percentage applied (0.00 to 0.20; discrete values: 0%, 5%, 10%, 15%, 20%).
+  - `revenue`: Recorded gross sale amount ($8.00 to $99.95; Sum: $24,498,421.43).
+  - `cost`: Cost of goods sold ($4.00 to $70.00; Sum: $14,806,220.22).
+  - `profit`: Recorded operating profit ($2.00 to $45.00; Sum: $9,692,201.21).
+- **Null Values:** 0 nulls across all fields.
 
-### 2.4 `stores.csv`
+---
 
-- **Reported row count:** Approximately 101
-- **Column count:** 5
-- **Grain:** One row per store, assuming `store_id` uniquely identifies each store.
-- **Candidate primary key:** `store_id`
-- **Date fields:** None reported.
-- **Numeric measures:** None reported.
-- **Category / descriptive fields:** `city`, `country`, `store_type`; document the remaining fields after confirming the schema.
-- **Missing values:** None reported; validation pending.
-- **Duplicate rows or candidate keys:** None reported; uniqueness check pending.
-- **Invalid values / inconsistencies:** None reported; validation pending.
-- **Other observations:** Seven distinct cities, six countries, and four store types have been reported. Confirm these counts against the actual data.
+## 3. Entity Relationships & Referential Integrity
 
-### 2.5 `sales.csv`
+| Relationship | Cardinality | Join Keys | Integrity Status | Impact & Notes |
+|---|---|---|---|---|
+| Sales → Products | Many-to-One (N:1) | `sales.product_id` = `products.product_id` | **Violated** (9,764 orphan rows) | Two keys (`P0000`, `P0201`) in sales do not exist in products catalog |
+| Sales → Customers | Many-to-One (N:1) | `sales.customer_id` = `customers.customer_id` | **100% Verified** | All 1,000,000 sales link cleanly to 50,000 unique customers |
+| Sales → Stores | Many-to-One (N:1) | `sales.store_id` = `stores.store_id` | **100% Verified** | All 1,000,000 sales link cleanly to 100 stores |
+| Sales → Calendar | Many-to-One (N:1) | `sales.order_date` = `calendar.date` | **100% Verified** | All 1,000,000 transactions map to the 731 dates |
 
-- **Reported row count:** More than 999; exact count pending.
-- **Column count:** 11
-- **Grain:** Reported as sales transaction/order-level data. Confirm whether one row represents an entire order or an individual product line within an order.
-- **Candidate primary key:** `order_id`, subject to uniqueness validation.
-- **Date fields:** `order_date`
-- **Foreign-key candidates:** `product_id`, `Customer_Id`, `store_id`, and `order_date`, subject to matching the actual column names and validating referential integrity.
-- **Numeric measures:** `Quantity`, `unit price`, `discount`, `revenue`, `cost`, `profit`.
-- **Category / descriptive fields:** Remaining columns to be documented after confirming the schema.
-- **Missing values:** None reported; validation pending.
-- **Duplicate rows or candidate keys:** None reported; uniqueness check pending.
-- **Invalid values / inconsistencies:** None reported; validate numeric ranges, discount representation, financial calculations, and date validity.
-- **Other observations:** The dataset has been described as large for Excel. Check the exact row count and available memory before deciding whether to use Power Query, a database, or another processing approach.
+---
 
-## 3. Relationships
+## 4. Empirical Data Quality Findings & Anomalies
 
-| From table / field | To table / field | Evidence | Status |
-|---|---|---|---|
-| `sales.product_id` | `products.product_id` | Sales records reference existing product IDs | Verified |
-| `sales.Customer_Id` | `customers.Customer_Id` | Sales records reference existing customer IDs | Verified |
-| `sales.store_id` | `stores.store_id` | Sales records reference existing store IDs | Verified |
-| `sales.order_date` | `calendar.date` | Calendar dates are unique; multiple sales records can reference the same date | Verified |
+### 4.1 Orphan Product Identifiers (`P0000` & `P0201`)
+- **Observation:** `sales.csv` contains 9,764 records (0.98% of total transactions) referencing product IDs outside the master product catalog:
+  - `P0000`: 4,932 records ($120,629.62 in revenue, $47,758.33 in profit)
+  - `P0201`: 4,832 records ($117,994.04 in revenue, $46,658.07 in profit)
+- **Analytical Handling:** 
+  - Do NOT delete or drop these records, as they represent valid financial transactions ($238,623.66 total revenue).
+  - In SQL and Power BI, classify these records under Brand: `Unknown / Unassigned` and Category: `Unassigned` using `COALESCE` or `IF(ISBLANK())` measures.
 
-### Relationship Notes
+### 4.2 Floating-Point Calculation Variances (~$0.01)
+- **Revenue Calculation:**
+  $$\text{Expected Revenue} = \text{ROUND}(\text{quantity} \times \text{unit\_price} \times (1 - \text{discount}), 2)$$
+  - Exactly **2,646 records** (0.26% of transactions) differ from the recorded `revenue` column by $\pm \$0.01$.
+- **Profit Calculation:**
+  $$\text{Expected Profit} = \text{ROUND}(\text{revenue} - \text{cost}, 2)$$
+  - Exactly **27,915 records** (2.79% of transactions) differ from the recorded `profit` column by $\pm \$0.01$.
+- **Root Cause:** Standard floating-point rounding artifacts introduced during synthetic data generation.
+- **Handling:** Maintain recorded financial columns as the source of truth for exact portfolio reconciliation.
 
-- `calendar.date` is the primary key of the calendar table.
-- `sales.order_date` is a foreign key referencing `calendar.date`.
-- The Calendar-to-Sales relationship is one-to-many (1:M).
-- Repeated dates in the sales table are expected because multiple sales transactions can occur on the same date.
-- Uniqueness is required on the referenced calendar key, not on the foreign key in the sales table.
+### 4.3 Store Geographic Inconsistency (80% Discordance)
+- **Observation:** When cross-referencing `city` and `country` against established real-world geography, **80 out of 100 stores** are mapped inconsistently (e.g., Paris assigned to UK, Berlin to France, Melbourne to Canada).
+- **Audit Breakdown:**
+  - 20 stores match valid real-world pairs (e.g., New York, USA; Toronto, Canada).
+  - 80 stores contain mismatched pairings due to independent uniform randomization during dataset creation.
+- **Handling:** Document clearly that `city` and `country` are synthetic attributes. Analyze city performance and store-type performance independently rather than building a rigid geographical hierarchy.
 
-## 4. Initial Data Quality Checks
+### 4.4 Synthetic Uniformity Across Dimensions
+- Intra-week daily revenue fluctuates by less than 0.6% ($34,788 to $34,982 per day).
+- Monthly revenue fluctuates by less than 2.0% across the 24 months.
+- Customer age groups, genders, and loyalty tiers each exhibit virtually identical order volumes and spend per order.
+- Brand revenue is evenly split across all 6 brands (~$4.0M to $4.1M each).
+- **Implication:** The dataset exhibits hallmarks of uniform pseudo-random synthesis. Analyses must highlight these descriptive truths without asserting speculative real-world behavioral claims.
 
-- [x] File encoding and delimiters are readable.
-- [x] Headers and column names are understood.
-- [x] Data types are plausible.
-- [x] Missing values are checked; none found.
-- [x] Candidate key uniqueness is checked.
-- [x] Duplicate records are investigated; none found.
-- [x] Category consistency is reviewed.
-- [x] Date ranges and numeric ranges are checked.
-- [x] Relationships and unmatched keys are tested.
+---
 
-## 5. Initial Observations
+## 5. Remediation & Handling Strategy
 
-1. The dataset contains five CSV files: `calendar.csv`, `customers.csv`, `products.csv`, `stores.csv`, and `sales.csv`.
-2. The data follows a dimensional model, with `sales.csv` acting as the central fact table and the other four tables providing descriptive attributes.
-3. The calendar table contains 731 unique dates covering 2023–2024. Multiple sales records can reference the same calendar date without violating referential integrity.
-4. The product table contains attributes such as cocoa percentage, weight, brand, and chocolate category, enabling product-level sales comparisons.
-5. The sales table contains quantity and financial measures that can support revenue, cost, and profitability analysis.
-6. The customer and store tables provide attributes for customer segmentation and geographical or store-type comparisons.
-
-## 7. Decisions and Follow-up
-
-| Issue / question | Decision or next action | Reason |
-|---|---|---|
-| Multiple sales records reference the same calendar date | Retain the one-to-many Calendar-to-Sales relationship | Multiple transactions can occur on the same date |
-| Candidate keys and relationships | Retain the validated keys and relationships | Uniqueness and referential integrity have been checked |
-| Dataset structure and quality | Proceed to exploratory data analysis | Initial data quality checks are complete |
-| Business questions | Analyze the questions listed in [Business Questions](docs/question_bank.md) | Use the available product, sales, customer, store, and calendar attributes to derive insights |
+1. **Database Schema:** Foreign key constraint on `sales.product_id` must either allow missing keys, or include a dummy record in `products` for `P0000` and `P0201` marked as 'Unknown SKU'.
+2. **Power BI Data Model:** Relationships configured with single-direction filtering. Measures incorporate `COALESCE()` and explicit error-handling.
+3. **Reporting & Presentation:** Explicitly acknowledge synthetic limitations in the README and portfolio presentation to showcase senior-level data quality discernment.
