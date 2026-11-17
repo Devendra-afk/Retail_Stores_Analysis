@@ -327,7 +327,7 @@
           {
             "name": "Measure_ID",
             "dataType": "int64",
-            "isCalculated": true,
+            "type": "calculated",
             "expression": "1",
             "isHidden": true
           }
