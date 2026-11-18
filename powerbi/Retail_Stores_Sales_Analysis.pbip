@@ -6,8 +6,5 @@
         "path": "Retail_Stores_Sales_Analysis.Report"
       }
     }
-  ],
-  "settings": {
-    "enableAutoAuth": true
-  }
+  ]
 }
